@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Desenhos para Pintar · Estímulo Cerebral</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="topo">
+    <div class="marca">
+      <span class="logo">✦</span>
+      <div>
+        <h1>Desenhos para Pintar</h1>
+        <p>Gerador vetorial que estimula várias áreas do cérebro</p>
+      </div>
+    </div>
+    <nav class="abas">
+      <button id="tab-criar" class="ativo">Criar</button>
+      <button id="tab-studio">Estúdio (Blocos)</button>
+      <button id="tab-colecao">Minha Coleção</button>
+    </nav>
+  </header>
+
+  <!-- ===================== VIEW: CRIAR ===================== -->
+  <main id="view-criar" class="layout">
+    <!-- Coluna 1: geradores + parâmetros -->
+    <aside class="coluna painel">
+      <h2 class="secao">Tipo de desenho</h2>
+      <div id="lista-geradores" class="lista-geradores"></div>
+
+      <div class="ficha">
+        <h3 id="g-titulo"></h3>
+        <p id="g-descricao" class="desc"></p>
+        <span id="g-faixa" class="faixa"></span>
+        <div id="g-areas" class="chips"></div>
+        <p class="rotulo-mini">Por que estimula o cérebro</p>
+        <p id="g-porque" class="porque"></p>
+        <p id="g-algoritmo" class="algoritmo"></p>
+      </div>
+
+      <h2 class="secao">Ajustes</h2>
+      <div id="painel-params" class="params"></div>
+      <button id="btn-novo" class="btn primario largo">↻ Gerar nova variação</button>
+
+      <h2 class="secao">✨ Efeitos manipuláveis</h2>
+      <div class="efeitos">
+        <div class="campo"><label>Espessura do traço <b id="fx-espessura-v">1.0</b></label>
+          <input type="range" id="fx-espessura" min="30" max="300" value="100"></div>
+        <div class="campo"><label>Simetria / caleidoscópio</label>
+          <select id="fx-simetria">
+            <option value="none">Nenhuma</option>
+            <option value="h">Espelho horizontal</option>
+            <option value="v">Espelho vertical</option>
+            <option value="quad">Espelho 4×</option>
+            <option value="radial6">Radial 6×</option>
+            <option value="radial8">Radial 8×</option>
+          </select></div>
+        <div class="campo"><label>Traço irregular <b id="fx-rascunho-v">0</b></label>
+          <input type="range" id="fx-rascunho" min="0" max="3" step="1" value="0"></div>
+        <div class="campo"><label>Ondular (distorção) <b id="fx-ondular-v">0</b></label>
+          <input type="range" id="fx-ondular" min="0" max="3" step="1" value="0"></div>
+        <div class="campo cores">
+          <label>Traço <input type="color" id="fx-cor-traco" value="#1b1b1b"></label>
+          <label>Fundo <input type="color" id="fx-cor-fundo" value="#ffffff"></label>
+        </div>
+        <button id="fx-reset" class="btn largo">Resetar efeitos</button>
+      </div>
+    </aside>
+
+    <!-- Coluna 2: palco de pintura -->
+    <section class="coluna palco-wrap">
+      <div class="ferramentas">
+        <div id="paleta" class="paleta"></div>
+        <label class="cor-custom-wrap" title="Cor personalizada">
+          <input type="color" id="cor-custom" />
+          <span>＋</span>
+        </label>
+        <span class="sep"></span>
+        <button id="btn-borracha" class="btn icone" title="Borracha">⌫ Borracha</button>
+        <button id="btn-limpar" class="btn icone" title="Limpar pintura">✕ Limpar</button>
+      </div>
+
+      <!-- Barra do editor de cena (só aparece em "Montar Cena") -->
+      <div id="cena-tools" class="cena-tools" style="display:none">
+        <div class="modo-toggle">
+          <button id="modo-editar" class="ativo">✋ Editar</button>
+          <button id="modo-pintar">🖌 Pintar</button>
+        </div>
+        <div id="edit-acoes" class="edit-acoes">
+          <span class="sel-info" id="sel-info">Toque num elemento para selecionar</span>
+          <div class="edit-botoes">
+            <button data-ed="maior" title="Aumentar">⊕</button>
+            <button data-ed="menor" title="Diminuir">⊖</button>
+            <button data-ed="girar-e" title="Girar esquerda">⟲</button>
+            <button data-ed="girar-d" title="Girar direita">⟳</button>
+            <button data-ed="frente" title="Trazer para frente">⬆</button>
+            <button data-ed="tras" title="Enviar para trás">⬇</button>
+            <button data-ed="duplicar" title="Duplicar">⧉</button>
+            <button data-ed="excluir" class="perigo" title="Excluir">🗑</button>
+          </div>
+          <div class="edit-botoes">
+            <button id="btn-adicionar" class="destaque">＋ Adicionar</button>
+            <button id="btn-camadas">▤ Camadas</button>
+            <button data-ed="separar">✥ Separar</button>
+            <button data-ed="alinhar">⊞ Auto-alinhar</button>
+            <button data-ed="embaralhar">🎲 Embaralhar</button>
+          </div>
+        </div>
+        <div id="add-panel" class="add-panel" style="display:none"></div>
+        <div id="layers-panel" class="layers-panel" style="display:none"></div>
+      </div>
+
+      <div id="palco" class="palco">
+        <div id="svg-host"></div>
+        <div id="carregando" class="carregando" style="display:none">
+          <div class="spinner"></div>
+          <span>Gerando padrão…</span>
+        </div>
+      </div>
+
+      <div class="acoes">
+        <button id="btn-salvar" class="btn primario">💾 Salvar na coleção</button>
+        <button id="btn-massa" class="btn">⚃ Gerar 50 (revisar)</button>
+        <button id="btn-imprimir" class="btn">🖨 Imprimir</button>
+        <button id="btn-png" class="btn">⬇ PNG</button>
+        <button id="btn-svg" class="btn">⬇ SVG</button>
+      </div>
+      <p class="dica">Clique nas regiões do desenho para pintar com a cor selecionada.</p>
+    </section>
+  </main>
+
+  <!-- ===================== VIEW: COLEÇÃO ===================== -->
+  <main id="view-colecao" class="colecao" style="display:none">
+    <h2 class="secao">Minha Coleção</h2>
+    <p id="colecao-vazia" class="vazia">Você ainda não salvou nenhum desenho. Crie um e clique em “Salvar na coleção”.</p>
+    <div id="colecao-grid" class="colecao-grid"></div>
+  </main>
+
+  <!-- ===================== VIEW: ESTÚDIO (BLOCOS) ===================== -->
+  <main id="view-studio" class="studio" style="display:none">
+    <aside class="st-col st-camadas">
+      <h2 class="secao">Camadas <small>(infinitas)</small></h2>
+      <button id="st-nova" class="btn primario largo">＋ Nova camada</button>
+      <div id="st-lista" class="st-lista"></div>
+      <p class="dica">Cada camada tem uma <b>fonte</b> + uma <b>pilha de blocos</b> (lógica) que transforma a imagem — como um Scratch de imagens.</p>
+    </aside>
+    <section class="st-col st-canvas-wrap">
+      <div id="st-toolbar" class="ferramentas"></div>
+      <div id="st-canvas" class="palco"><div id="st-host"></div></div>
+      <div id="st-acoes" class="acoes"></div>
+    </section>
+    <aside class="st-col st-programa">
+      <h2 class="secao">Programa da camada</h2>
+      <div id="st-fonte" class="st-fonte"></div>
+      <h3 class="rotulo-mini">Blocos (lógica) — executados de cima p/ baixo</h3>
+      <div id="st-add-bloco"></div>
+      <div id="st-blocos" class="st-blocos"></div>
+    </aside>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <!-- Modal: geração em massa (lote misto) -->
+  <div id="batch-modal" class="modal" style="display:none">
+    <div class="modal-box grande">
+      <div class="modal-topo">
+        <h2>Gerar lote misto — escolha geradores e quantidades</h2>
+        <button id="batch-fechar" class="modal-x">✕</button>
+      </div>
+      <div id="batch-receita" class="batch-receita"></div>
+      <div class="batch-barra">
+        <button id="batch-add-gen" class="btn">＋ Adicionar gerador</button>
+        <button id="batch-gerar" class="btn primario">⚡ Gerar lote</button>
+        <button id="batch-parar" class="btn">⏹ Parar</button>
+        <span id="batch-status" class="batch-status"></span>
+      </div>
+      <div class="batch-barra batch-export">
+        <span class="exp-rotulo">Exportar tudo:</span>
+        <button id="batch-pdf" class="btn">🖨 PDF (1 por página)</button>
+        <button id="batch-todos-png" class="btn">⬇ Todos PNG</button>
+        <button id="batch-todos-svg" class="btn">⬇ Todos SVG</button>
+      </div>
+      <div id="batch-grid" class="batch-grid"></div>
+    </div>
+  </div>
+
+  <!-- Dados (carregados como script p/ funcionar com duplo-clique, sem servidor) -->
+  <script src="data/dataset.js"></script>
+  <script src="js/generators.js"></script>
+  <script src="js/elements.js"></script>
+  <script src="js/editor.js"></script>
+  <script src="js/fields.js"></script>
+  <script src="js/effects.js"></script>
+  <script src="js/batch.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/studio.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
