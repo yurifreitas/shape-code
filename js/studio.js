@@ -19,7 +19,10 @@ window.Studio = (function () {
     grade: { nome: "▦ Grade", cat: "logica", params: { colunas: [1, 10, 3], linhas: [1, 10, 3], espX: [20, 240, 120], espY: [20, 240, 120] } },
     radial: { nome: "✺ Radial", cat: "logica", params: { vezes: [2, 24, 8], raio: [0, 300, 0], girar: [0, 1, 1] } },
     mover: { nome: "↔ Mover", cat: "mov", params: { dx: [-300, 300, 0], dy: [-300, 300, 0] } },
-    escalar: { nome: "⤢ Escalar", cat: "mov", params: { pct: [20, 200, 100] } },
+    escalar: { nome: "⤢ Escalar", cat: "mov", params: { pct: [10, 300, 100] } },
+    esticar: { nome: "⇲ Esticar (X/Y)", cat: "mov", params: { escalaX: [20, 250, 100], escalaY: [20, 250, 100] } },
+    inclinar: { nome: "⫽ Inclinar", cat: "mov", params: { grauX: [-60, 60, 0], grauY: [-60, 60, 0] } },
+    inverter: { nome: "⇋ Inverter", cat: "mov", params: { eixo: { sel: ["h", "v"], padrao: "h" } } },
     girar: { nome: "⟳ Girar", cat: "mov", params: { graus: [-180, 180, 0] } },
     espelhar: { nome: "🪞 Espelhar", cat: "apar", params: { eixo: { sel: ["h", "v", "quad"], padrao: "h" } } },
     cor: { nome: "🖊 Traço", cat: "apar", params: { espessura: [30, 300, 100], traco: { cor: "#1b1b1b" } } },
@@ -77,6 +80,9 @@ window.Studio = (function () {
     }
     if (t === "mover") return wrapG("translate(" + b.dx + " " + b.dy + ")", content);
     if (t === "escalar") { const s = b.pct / 100; return wrapG("translate(" + CX + " " + CY + ") scale(" + s + ") translate(" + (-CX) + " " + (-CY) + ")", content); }
+    if (t === "esticar") return wrapG("translate(" + CX + " " + CY + ") scale(" + (b.escalaX / 100) + " " + (b.escalaY / 100) + ") translate(" + (-CX) + " " + (-CY) + ")", content);
+    if (t === "inclinar") return wrapG("translate(" + CX + " " + CY + ") skewX(" + b.grauX + ") skewY(" + b.grauY + ") translate(" + (-CX) + " " + (-CY) + ")", content);
+    if (t === "inverter") { const sx = b.eixo === "v" ? "1 -1" : "-1 1"; return wrapG("translate(" + CX + " " + CY + ") scale(" + sx + ") translate(" + (-CX) + " " + (-CY) + ")", content); }
     if (t === "girar") return wrapG("rotate(" + b.graus + " " + CX + " " + CY + ")", content);
     if (t === "espelhar") {
       if (b.eixo === "v") return content + wrapG("matrix(1,0,0,-1,0," + H + ")", content);
@@ -127,15 +133,23 @@ window.Studio = (function () {
       if (content.length > CAP) break;
     }
     const op = (layer.opacidade == null ? 100 : layer.opacidade) / 100;
-    return '<g fill="#ffffff" stroke="#1b1b1b" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" opacity="' + op + '" style="mix-blend-mode:' + (layer.blend || "normal") + '">' + content + "</g>";
+    const fill = layer.corPreench || "#ffffff", stroke = layer.corTraco || "#1b1b1b";
+    const sw = (2.2 * ((layer.espessura == null ? 100 : layer.espessura) / 100)).toFixed(2);
+    // transformação rápida da camada (escala / rotação / posição) sobre o centro
+    const esc = (layer.lEscala == null ? 100 : layer.lEscala) / 100, rot = layer.lRot || 0, dx = layer.ldx || 0, dy = layer.ldy || 0;
+    let tr = "";
+    if (esc !== 1 || rot !== 0 || dx !== 0 || dy !== 0) tr = ' transform="translate(' + dx + " " + dy + ") translate(" + CX + " " + CY + ") scale(" + esc + ") rotate(" + rot + ") translate(" + (-CX) + " " + (-CY) + ')"';
+    return "<g" + tr + ' fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + sw + '" stroke-linejoin="round" stroke-linecap="round" opacity="' + op + '" style="mix-blend-mode:' + (layer.blend || "normal") + '">' + content + "</g>";
   }
 
   function compor() {
     const ctx = { defs: [] };
     const corpos = [];
     doc.camadas.forEach((l) => { if (l.visivel !== false) corpos.push(processarCamada(l, ctx)); });
+    // fundo fixo (branco ou transparente) — NUNCA escala com as camadas
+    const bgRect = doc.fundo === "transparente" ? "" : '<rect class="bg" x="0" y="0" width="' + W + '" height="' + H + '" fill="#ffffff"/>';
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + " " + H + '" width="' + W + '" height="' + H + '">' +
-      '<rect class="bg" x="0" y="0" width="' + W + '" height="' + H + '" fill="#ffffff"/>' +
+      bgRect +
       (ctx.defs.length ? "<defs>" + ctx.defs.join("") + "</defs>" : "") +
       corpos.join("") + "</svg>";
   }
@@ -144,7 +158,7 @@ window.Studio = (function () {
     const svg = compor();
     host.innerHTML = svg;
     const s = host.querySelector("svg");
-    if (s) s.querySelectorAll(".region").forEach((el) => { el.style.cursor = "pointer"; el.addEventListener("click", (ev) => { ev.stopPropagation(); el.setAttribute("fill", corAtual); }); });
+    if (s) s.querySelectorAll(".region").forEach((el) => { el.style.cursor = "pointer"; el.addEventListener("click", (ev) => { ev.stopPropagation(); if (corAtual === "__erase__") el.removeAttribute("fill"); else el.setAttribute("fill", corAtual); }); });
   }
 
   // ───────── camadas: criar/clonar ─────────
@@ -152,7 +166,7 @@ window.Studio = (function () {
     fonte = fonte || "superformula";
     const g = dadosGerador(fonte), params = {};
     for (const k in (g.params || {})) if (g.params[k].tipo !== "multi") params[k] = g.params[k].padrao;
-    const l = { id: "c" + contador, nome: "Camada " + contador, fonte: fonte, params: params, seed: (Math.random() * 1e9) | 0, visivel: true, opacidade: 100, blend: "normal", blocos: [] };
+    const l = { id: "c" + contador, nome: "Camada " + contador, fonte: fonte, params: params, seed: (Math.random() * 1e9) | 0, visivel: true, opacidade: 100, blend: "normal", corPreench: "#ffffff", corTraco: "#1b1b1b", espessura: 100, lEscala: 100, lRot: 0, ldx: 0, ldy: 0, blocos: [] };
     contador++;
     recomputeBase(l);
     return l;
@@ -163,7 +177,7 @@ window.Studio = (function () {
     if (iniciado) { recompositar(); return; }
     iniciado = true;
     host = $("st-host");
-    doc = { camadas: [] };
+    doc = { camadas: [], fundo: "branco" };
     const l1 = novaCamada("penrose"); l1.nome = "Fundo"; l1.opacidade = 45; l1.blocos = [{ tipo: "animgirar", velocidade: 2, sentido: "anti" }];
     const l2 = novaCamada("forma"); l2.nome = "Pétalas"; l2.params = { tipo: "gota", tamanho: 80 };
     l2.blocos = [{ tipo: "radial", vezes: 8, raio: 130, girar: 1 }, { tipo: "animgirar", velocidade: 5, sentido: "horario" }];
@@ -183,8 +197,19 @@ window.Studio = (function () {
     const tb = $("st-toolbar"); tb.innerHTML = "";
     const pal = document.createElement("div"); pal.className = "paleta";
     PALETA.forEach((c) => { const b = document.createElement("button"); b.className = "swatch" + (c === corAtual ? " sel" : ""); b.style.background = c; if (c === "#ffffff") b.style.border = "2px solid #ccc"; b.onclick = () => { corAtual = c; tb.querySelectorAll(".swatch").forEach((s) => s.classList.remove("sel")); b.classList.add("sel"); }; pal.appendChild(b); });
+    const ci = document.createElement("input"); ci.type = "color"; ci.className = "st-color"; ci.value = "#e63946"; ci.title = "Cor personalizada";
+    ci.oninput = () => { corAtual = ci.value; tb.querySelectorAll(".swatch").forEach((s) => s.classList.remove("sel")); };
+    pal.appendChild(ci);
     tb.appendChild(pal);
     const sep = document.createElement("span"); sep.className = "sep"; tb.appendChild(sep);
+    const borr = document.createElement("button"); borr.className = "btn icone"; borr.textContent = "⌫ Borracha";
+    borr.onclick = () => { corAtual = "__erase__"; tb.querySelectorAll(".swatch").forEach((s) => s.classList.remove("sel")); };
+    tb.appendChild(borr);
+    const fundoBtn = document.createElement("button"); fundoBtn.className = "btn icone";
+    const attFundo = () => { fundoBtn.textContent = doc.fundo === "transparente" ? "▦ Fundo: transparente" : "▦ Fundo: branco"; };
+    attFundo();
+    fundoBtn.onclick = () => { doc.fundo = doc.fundo === "transparente" ? "branco" : "transparente"; attFundo(); recompositar(); };
+    tb.appendChild(fundoBtn);
     const play = document.createElement("button"); play.className = "btn icone"; play.textContent = "⏸ Pausar";
     play.onclick = () => { const s = host.querySelector("svg"); if (!s) return; if (play.dataset.p) { s.unpauseAnimations(); play.textContent = "⏸ Pausar"; play.dataset.p = ""; } else { s.pauseAnimations(); play.textContent = "▶ Tocar"; play.dataset.p = "1"; } };
     tb.appendChild(play);
@@ -253,14 +278,32 @@ window.Studio = (function () {
       if (p.tipo === "select") fonteBox.appendChild(rotulado(p.rotulo, ctrlSelect(p.opcoes, l.params[k], (v) => { l.params[k] = v; recomputeBase(l); recompositar(); })));
       else fonteBox.appendChild(ctrlRange(p.rotulo, p.min, p.max, l.params[k], (v) => { l.params[k] = v; recomputeBase(l); recompositar(); }));
     });
-    // opacidade + blend
+    const mini = (txt) => { const p = document.createElement("p"); p.className = "rotulo-mini"; p.textContent = txt; return p; };
+    // cor da camada (sobrevive às edições de blocos)
+    fonteBox.appendChild(mini("🎨 Cor da camada"));
+    fonteBox.appendChild(rotulado("Preenchimento", ctrlPaleta(l.corPreench, (c) => { l.corPreench = c; renderPrograma(); recompositar(); })));
+    fonteBox.appendChild(rotulado("Traço", ctrlCor(l.corTraco, (v) => { l.corTraco = v; recompositar(); })));
+    fonteBox.appendChild(ctrlRange("Espessura do traço", 0, 300, l.espessura, (v) => { l.espessura = v; recompositar(); }));
+    // transformar a camada inteira
+    fonteBox.appendChild(mini("⤢ Transformar camada"));
+    fonteBox.appendChild(ctrlRange("Escala (%)", 20, 300, l.lEscala, (v) => { l.lEscala = v; recompositar(); }));
+    fonteBox.appendChild(ctrlRange("Rotação (°)", -180, 180, l.lRot, (v) => { l.lRot = v; recompositar(); }));
+    fonteBox.appendChild(ctrlRange("Posição X", -300, 300, l.ldx, (v) => { l.ldx = v; recompositar(); }));
+    fonteBox.appendChild(ctrlRange("Posição Y", -300, 300, l.ldy, (v) => { l.ldy = v; recompositar(); }));
+    // mistura
+    fonteBox.appendChild(mini("⛓ Mistura"));
     fonteBox.appendChild(ctrlRange("Opacidade", 10, 100, l.opacidade, (v) => { l.opacidade = v; recompositar(); }));
-    fonteBox.appendChild(rotulado("Mistura (blend)", ctrlSelect(["normal", "multiply", "screen", "overlay", "difference"], l.blend, (v) => { l.blend = v; recompositar(); })));
+    fonteBox.appendChild(rotulado("Mistura (blend)", ctrlSelect(["normal", "multiply", "screen", "overlay", "darken", "lighten", "difference"], l.blend, (v) => { l.blend = v; recompositar(); })));
 
     // adicionar bloco
     const add = $("st-add-bloco"); add.innerHTML = "";
     const selB = document.createElement("select"); selB.className = "st-sel";
-    selB.innerHTML = '<option value="">＋ Adicionar bloco…</option>' + Object.keys(BLOCOS).map((t) => '<option value="' + t + '">' + BLOCOS[t].nome + "</option>").join("");
+    const catNome = { logica: "🔁 Laços / Lógica", mov: "↔ Mover / Escalar", apar: "🎨 Aparência", anim: "✨ Animação" };
+    const grupos = {};
+    Object.keys(BLOCOS).forEach((t) => { const c = BLOCOS[t].cat; (grupos[c] = grupos[c] || []).push(t); });
+    let htmlB = '<option value="">＋ Adicionar bloco…</option>';
+    ["logica", "mov", "apar", "anim"].forEach((c) => { if (!grupos[c]) return; htmlB += '<optgroup label="' + catNome[c] + '">' + grupos[c].map((t) => '<option value="' + t + '">' + BLOCOS[t].nome + "</option>").join("") + "</optgroup>"; });
+    selB.innerHTML = htmlB;
     selB.onchange = () => { if (!selB.value) return; l.blocos.push(novoBloco(selB.value)); selB.value = ""; renderPrograma(); recompositar(); };
     add.appendChild(selB);
 
@@ -306,6 +349,21 @@ window.Studio = (function () {
   }
   function ctrlSelect(opcoes, val, onChange) { const s = document.createElement("select"); s.className = "st-sel"; opcoes.forEach((o) => { const op = document.createElement("option"); op.value = o; op.textContent = o; if (o === val) op.selected = true; s.appendChild(op); }); s.onchange = () => onChange(s.value); return s; }
   function ctrlCor(val, onChange) { const i = document.createElement("input"); i.type = "color"; i.value = val || "#1b1b1b"; i.oninput = () => onChange(i.value); return i; }
+  function ctrlPaleta(atual, onPick) {
+    const w = document.createElement("div"); w.className = "st-mini-pal";
+    PALETA.forEach((c) => {
+      const b = document.createElement("button");
+      b.className = "swatch-mini" + (c === atual ? " sel" : ""); b.style.background = c;
+      if (c === "#ffffff") b.style.border = "1px solid #ccc";
+      b.title = c; b.onclick = () => onPick(c);
+      w.appendChild(b);
+    });
+    const ci = document.createElement("input"); ci.type = "color"; ci.className = "st-color";
+    ci.value = (atual && atual[0] === "#" && atual.length === 7) ? atual : "#1b1b1b";
+    ci.oninput = () => onPick(ci.value);
+    w.appendChild(ci);
+    return w;
+  }
   function ctrlTexto(rotulo, val, onChange) { const w = rotulado(rotulo, (function () { const i = document.createElement("input"); i.type = "text"; i.className = "st-sel"; i.value = val; i.oninput = () => onChange(i.value); return i; })()); return w; }
 
   function escapeHtml(s) { return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }

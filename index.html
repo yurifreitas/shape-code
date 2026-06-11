@@ -17,6 +17,7 @@
     </div>
     <nav class="abas">
       <button id="tab-criar" class="ativo">Criar</button>
+      <button id="tab-desenhar">Desenhar</button>
       <button id="tab-studio">Estúdio</button>
       <button id="tab-colecao">Coleção</button>
       <button id="btn-foco" title="Modo foco (esconder painéis)">⛶</button>
@@ -46,6 +47,14 @@
 
       <h2 class="secao">✨ Efeitos manipuláveis</h2>
       <div class="efeitos">
+        <p class="rotulo-mini">Transformar a figura</p>
+        <div class="campo"><label>Escala (zoom) <b id="fx-escala-v">1.0</b>×</label>
+          <input type="range" id="fx-escala" min="30" max="250" value="100"></div>
+        <div class="campo"><label>Rotação <b id="fx-rotacao-v">0</b>°</label>
+          <input type="range" id="fx-rotacao" min="-180" max="180" value="0"></div>
+        <div class="campo"><label>Inclinar (cisalhar) <b id="fx-inclinar-v">0</b>°</label>
+          <input type="range" id="fx-inclinar" min="-45" max="45" value="0"></div>
+        <p class="rotulo-mini">Estilo</p>
         <div class="campo"><label>Espessura do traço <b id="fx-espessura-v">1.0</b></label>
           <input type="range" id="fx-espessura" min="30" max="300" value="100"></div>
         <div class="campo"><label>Simetria / caleidoscópio</label>
@@ -63,8 +72,12 @@
           <input type="range" id="fx-ondular" min="0" max="3" step="1" value="0"></div>
         <div class="campo cores">
           <label>Traço <input type="color" id="fx-cor-traco" value="#1b1b1b"></label>
-          <label>Fundo <input type="color" id="fx-cor-fundo" value="#ffffff"></label>
         </div>
+        <div class="campo"><label>Fundo</label>
+          <select id="fx-fundo">
+            <option value="branco">Branco</option>
+            <option value="transparente">Transparente</option>
+          </select></div>
         <button id="fx-reset" class="btn largo">Resetar efeitos</button>
       </div>
     </aside>
@@ -93,6 +106,10 @@
           <div class="edit-botoes">
             <button data-ed="maior" title="Aumentar">⊕</button>
             <button data-ed="menor" title="Diminuir">⊖</button>
+            <button data-ed="largo" title="Esticar horizontal">↔</button>
+            <button data-ed="alto" title="Esticar vertical">↕</button>
+            <button data-ed="flip-h" title="Espelhar horizontal">⇋</button>
+            <button data-ed="flip-v" title="Espelhar vertical">⤲</button>
             <button data-ed="girar-e" title="Girar esquerda">⟲</button>
             <button data-ed="girar-d" title="Girar direita">⟳</button>
             <button data-ed="frente" title="Trazer para frente">⬆</button>
@@ -136,8 +153,51 @@
   <!-- ===================== VIEW: COLEÇÃO ===================== -->
   <main id="view-colecao" class="colecao" style="display:none">
     <h2 class="secao">Minha Coleção</h2>
+    <div class="col-toolbar">
+      <label class="col-chk"><input type="checkbox" id="col-semcor"> Sem cor (linha p/ colorir)</label>
+      <button id="col-marcar" class="btn">☑ Marcar todos</button>
+      <span class="sep"></span>
+      <button id="col-imprimir" class="btn primario">🖨 Imprimir tudo</button>
+      <button id="col-exportar" class="btn">📦 Exportar coleção</button>
+      <button id="col-compartilhar" class="btn">📤 Compartilhar coleção</button>
+      <button id="col-importar-btn" class="btn">📥 Importar</button>
+      <input type="file" id="col-importar" accept="application/json,.json" hidden>
+      <span id="col-info" class="col-info"></span>
+    </div>
     <p id="colecao-vazia" class="vazia">Você ainda não salvou nenhum desenho. Crie um e clique em “Salvar na coleção”.</p>
     <div id="colecao-grid" class="colecao-grid"></div>
+  </main>
+
+  <!-- ===================== VIEW: DESENHAR ===================== -->
+  <main id="view-desenhar" class="desenhar" style="display:none">
+    <aside class="d-col d-ferramentas">
+      <h2 class="secao">🖌️ Pincéis</h2>
+      <div id="d-pinceis" class="d-tools"></div>
+      <h2 class="secao">⬡ Formas</h2>
+      <div id="d-formas" class="d-tools"></div>
+      <h2 class="secao">🎨 Cor</h2>
+      <div id="d-cores" class="paleta"></div>
+      <div class="campo"><label>Tamanho do traço <b id="d-tam-v">8</b></label>
+        <input type="range" id="d-tam" min="1" max="60" value="8"></div>
+      <div class="campo"><label>Opacidade <b id="d-op-v">100</b></label>
+        <input type="range" id="d-op" min="10" max="100" value="100"></div>
+      <div class="campo"><label>Fundo</label>
+        <select id="d-fundo">
+          <option value="branco">Branco</option>
+          <option value="transparente">Transparente</option>
+          <option value="atual">Decalque do desenho da aba Criar</option>
+        </select></div>
+    </aside>
+    <section class="d-col d-canvas-wrap">
+      <div class="ferramentas d-topo">
+        <button id="d-desfazer" class="btn icone" disabled>↶ Desfazer</button>
+        <button id="d-refazer" class="btn icone" disabled>↷ Refazer</button>
+        <button id="d-limpar" class="btn icone">🗑 Limpar</button>
+      </div>
+      <div id="d-canvas" class="palco"><div id="d-host"></div></div>
+      <div id="d-acoes" class="acoes"></div>
+      <p class="dica">Desenhe com o dedo/caneta direto na tela. Escolha um pincel ou forma à esquerda.</p>
+    </section>
   </main>
 
   <!-- ===================== VIEW: ESTÚDIO (BLOCOS) ===================== -->
@@ -214,6 +274,7 @@
   <script src="js/batch.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/studio.js"></script>
+  <script src="js/draw.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

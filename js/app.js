@@ -245,22 +245,28 @@
   // ───────────────────────── EFEITOS (UI) ──────────────────────────────
   function bindEfeitos() {
     const fx = estado.fx;
+    $("fx-escala").oninput = function () { fx.escala = +this.value / 100; $("fx-escala-v").textContent = fx.escala.toFixed(1); reaplicarEfeitos(); };
+    $("fx-rotacao").oninput = function () { fx.rotacao = +this.value; $("fx-rotacao-v").textContent = this.value; reaplicarEfeitos(); };
+    $("fx-inclinar").oninput = function () { fx.inclinar = +this.value; $("fx-inclinar-v").textContent = this.value; reaplicarEfeitos(); };
     $("fx-espessura").oninput = function () { fx.espessura = +this.value / 100; $("fx-espessura-v").textContent = fx.espessura.toFixed(1); reaplicarEfeitos(); };
     $("fx-simetria").onchange = function () { fx.simetria = this.value; reaplicarEfeitos(); };
     $("fx-rascunho").oninput = function () { fx.rascunho = +this.value; $("fx-rascunho-v").textContent = this.value; reaplicarEfeitos(); };
     $("fx-ondular").oninput = function () { fx.ondular = +this.value; $("fx-ondular-v").textContent = this.value; reaplicarEfeitos(); };
     $("fx-cor-traco").oninput = function () { fx.corTraco = this.value; reaplicarEfeitos(); };
-    $("fx-cor-fundo").oninput = function () { fx.corFundo = this.value; reaplicarEfeitos(); };
+    $("fx-fundo").onchange = function () { fx.fundo = this.value; reaplicarEfeitos(); };
     $("fx-reset").onclick = function () { estado.fx = window.Effects.novo(); sincronizarEfeitosUI(); reaplicarEfeitos(); };
     sincronizarEfeitosUI();
   }
   function sincronizarEfeitosUI() {
     const fx = estado.fx;
+    $("fx-escala").value = Math.round((fx.escala == null ? 1 : fx.escala) * 100); $("fx-escala-v").textContent = (fx.escala == null ? 1 : fx.escala).toFixed(1);
+    $("fx-rotacao").value = fx.rotacao || 0; $("fx-rotacao-v").textContent = fx.rotacao || 0;
+    $("fx-inclinar").value = fx.inclinar || 0; $("fx-inclinar-v").textContent = fx.inclinar || 0;
     $("fx-espessura").value = Math.round(fx.espessura * 100); $("fx-espessura-v").textContent = fx.espessura.toFixed(1);
     $("fx-simetria").value = fx.simetria;
     $("fx-rascunho").value = fx.rascunho; $("fx-rascunho-v").textContent = fx.rascunho;
     $("fx-ondular").value = fx.ondular; $("fx-ondular-v").textContent = fx.ondular;
-    $("fx-cor-traco").value = fx.corTraco; $("fx-cor-fundo").value = fx.corFundo;
+    $("fx-cor-traco").value = fx.corTraco; $("fx-fundo").value = fx.fundo || "branco";
   }
 
   function renderAddPanel() {
@@ -344,8 +350,10 @@
       const card = document.createElement("div");
       card.className = "col-card";
       card.innerHTML =
-        '<div class="col-thumb">' + item.svg + "</div>" +
-        '<div class="col-info"><b>' + escapeHtml(item.nome) + "</b>" +
+        '<div class="col-thumb">' + item.svg +
+        '<label class="col-sel"><input type="checkbox" class="col-check" value="' + item.id + '"></label></div>' +
+        '<div class="col-meta"><b>' + escapeHtml(item.nome) + "</b>" +
+        '<code class="col-id">#' + escapeHtml(String(item.id)) + "</code>" +
         '<div class="col-areas">' + (item.areas || []).map(chipArea).join("") + "</div></div>" +
         '<div class="col-acoes">' +
         '<button data-act="abrir">Abrir</button>' +
@@ -353,6 +361,7 @@
         '<button data-act="svg">SVG</button>' +
         '<button data-act="del" class="perigo">Excluir</button>' +
         "</div>";
+      card.querySelector(".col-check").onchange = atualizarColInfo;
       card.querySelector('[data-act="abrir"]').onclick = () => {
         mostrarCenaTools(false);
         estado.scene = null;
@@ -368,6 +377,85 @@
       };
       box.appendChild(card);
     });
+    atualizarColInfo();
+  }
+
+  // ───────────────── COLEÇÃO: exportar / importar / imprimir tudo ─────────────
+  function semCor(svg) {
+    const div = document.createElement("div");
+    div.innerHTML = svg;
+    div.querySelectorAll(".region").forEach((el) => el.setAttribute("fill", "#ffffff"));
+    div.querySelectorAll("g[fill]").forEach((g) => { const f = (g.getAttribute("fill") || "").toLowerCase(); if (f && f !== "none" && f !== "#ffffff" && f !== "#fff") g.setAttribute("fill", "#ffffff"); });
+    const s = div.querySelector("svg");
+    return s ? s.outerHTML : svg;
+  }
+  function itensAlvo() {
+    const todos = window.STORAGE.listar();
+    const marcados = Array.from(document.querySelectorAll("#colecao-grid .col-check:checked")).map((c) => c.value);
+    if (!marcados.length) return todos;
+    const ids = new Set(marcados);
+    return todos.filter((x) => ids.has(x.id));
+  }
+  function svgsProntos(itens) {
+    const sc = $("col-semcor").checked;
+    return itens.map((it) => (sc ? semCor(it.svg) : it.svg));
+  }
+  function atualizarColInfo() {
+    const n = document.querySelectorAll("#colecao-grid .col-check:checked").length;
+    const tot = window.STORAGE.listar().length;
+    $("col-info").textContent = n ? n + " selecionados" : tot + " desenho(s)";
+  }
+  function marcarTodos() {
+    const checks = Array.from(document.querySelectorAll("#colecao-grid .col-check"));
+    const todos = checks.length && checks.every((c) => c.checked);
+    checks.forEach((c) => { c.checked = !todos; });
+    atualizarColInfo();
+  }
+  function imprimirColecao() {
+    const itens = itensAlvo();
+    if (!itens.length) { toast("Coleção vazia"); return; }
+    const svgs = svgsProntos(itens);
+    const win = window.open("", "_blank");
+    const pgs = svgs.map((s) => '<div class="pg">' + s + "</div>").join("");
+    win.document.write('<html><head><title>Coleção</title><style>@page{margin:8mm}body{margin:0}.pg{page-break-after:always;display:flex;align-items:center;justify-content:center;min-height:96vh}svg{width:100%;max-width:185mm;height:auto}</style></head><body>' + pgs + "<scr" + "ipt>window.onload=function(){window.print();}</scr" + "ipt></body></html>");
+    win.document.close();
+  }
+  function pacoteColecao() {
+    const itens = itensAlvo();
+    const sc = $("col-semcor").checked;
+    const out = sc ? itens.map((it) => Object.assign({}, it, { svg: semCor(it.svg) })) : itens;
+    return { tipo: "colecao-desenhos", versao: 1, exportadoEm: dataISO(), itens: out };
+  }
+  function exportarColecao() {
+    const pkg = pacoteColecao();
+    if (!pkg.itens.length) { toast("Coleção vazia"); return; }
+    const blob = new Blob([JSON.stringify(pkg, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "colecao-desenhos.json";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    toast(pkg.itens.length + " desenhos exportados");
+  }
+  function compartilharColecao() {
+    const pkg = pacoteColecao();
+    if (!pkg.itens.length) { toast("Coleção vazia"); return; }
+    const file = new File([JSON.stringify(pkg)], "colecao-desenhos.json", { type: "application/json" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: "Minha coleção de desenhos", text: "Pinte alguns e me devolva 🙂" }).catch(() => {});
+    } else { exportarColecao(); }
+  }
+  function importarColecao(file) {
+    const fr = new FileReader();
+    fr.onload = () => {
+      try {
+        const data = JSON.parse(fr.result);
+        const itens = Array.isArray(data) ? data : (data.itens || []);
+        const n = window.STORAGE.importar(itens);
+        renderColecao();
+        toast(n + " desenho(s) importado(s) ✓");
+      } catch (e) { toast("Arquivo inválido"); }
+    };
+    fr.readAsText(file);
   }
 
   function escapeHtml(s) {
@@ -377,15 +465,18 @@
   // ───────────────────────────── ABAS ──────────────────────────────────
   function trocarAba(aba) {
     $("view-criar").style.display = aba === "criar" ? "" : "none";
+    $("view-desenhar").style.display = aba === "desenhar" ? "" : "none";
     $("view-studio").style.display = aba === "studio" ? "" : "none";
     $("view-colecao").style.display = aba === "colecao" ? "" : "none";
     $("tab-criar").classList.toggle("ativo", aba === "criar");
+    $("tab-desenhar").classList.toggle("ativo", aba === "desenhar");
     $("tab-studio").classList.toggle("ativo", aba === "studio");
     $("tab-colecao").classList.toggle("ativo", aba === "colecao");
     $("mobile-bar").classList.toggle("on", aba === "criar"); // barra mobile só na Criar
     if (aba !== "criar") fecharSheet();
     if (aba === "colecao") renderColecao();
     if (aba === "studio" && window.Studio) window.Studio.init();
+    if (aba === "desenhar" && window.Draw) window.Draw.init();
   }
 
   // ───────────────── MOBILE: seções recolhíveis + gaveta de cores ──────────────
@@ -469,8 +560,22 @@
     $("mobile-bar").classList.add("on"); // começa na Criar
 
     $("tab-criar").onclick = () => trocarAba("criar");
+    $("tab-desenhar").onclick = () => trocarAba("desenhar");
     $("tab-studio").onclick = () => trocarAba("studio");
     $("tab-colecao").onclick = () => trocarAba("colecao");
+    // controles do desenhador
+    $("d-tam").oninput = function () { $("d-tam-v").textContent = this.value; if (window.Draw) window.Draw.setTam(+this.value); };
+    $("d-op").oninput = function () { $("d-op-v").textContent = this.value; if (window.Draw) window.Draw.setOpac(+this.value / 100); };
+    $("d-fundo").onchange = function () { if (window.Draw) window.Draw.setFundo(this.value, this.value === "atual" ? (estado.baseSVG || svgAtual()) : null); };
+    $("d-desfazer").onclick = () => window.Draw && window.Draw.desfazer();
+    $("d-refazer").onclick = () => window.Draw && window.Draw.refazer();
+    $("d-limpar").onclick = () => window.Draw && window.Draw.limpar();
+    $("col-imprimir").onclick = imprimirColecao;
+    $("col-exportar").onclick = exportarColecao;
+    $("col-compartilhar").onclick = compartilharColecao;
+    $("col-marcar").onclick = marcarTodos;
+    $("col-importar-btn").onclick = () => $("col-importar").click();
+    $("col-importar").onchange = (e) => { if (e.target.files[0]) importarColecao(e.target.files[0]); e.target.value = ""; };
     $("st-nova").onclick = () => window.Studio && window.Studio.novaCamada();
 
     $("btn-novo").onclick = () => gerar(true);
@@ -494,6 +599,10 @@
     const edFns = {
       maior: () => window.SceneEditor.escalar(1.15),
       menor: () => window.SceneEditor.escalar(1 / 1.15),
+      largo: () => window.SceneEditor.esticarX(1.15),
+      alto: () => window.SceneEditor.esticarY(1.15),
+      "flip-h": () => window.SceneEditor.flipH(),
+      "flip-v": () => window.SceneEditor.flipV(),
       "girar-e": () => window.SceneEditor.girar(-15),
       "girar-d": () => window.SceneEditor.girar(15),
       frente: () => window.SceneEditor.frente(),

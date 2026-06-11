@@ -697,8 +697,12 @@
     scene.placements.forEach((p, i) => {
       if (p.oculto) return; // camada invisível
       const inner = E[p.id].draw(p.x, p.y, p.s, rng(p.seed || 1));
-      const rot = p.rot ? ' transform="rotate(' + n(p.rot) + " " + n(p.x) + " " + n(p.y) + ')"' : "";
-      parts.push('<g class="elemento' + (i === sel ? " sel" : "") + '" data-i="' + i + '"' + rot + ">" + inner + "</g>");
+      const fx = p.fx == null ? 1 : p.fx, fy = p.fy == null ? 1 : p.fy;
+      let tr = "";
+      if (p.rot || fx !== 1 || fy !== 1) {
+        tr = ' transform="translate(' + n(p.x) + " " + n(p.y) + ") rotate(" + n(p.rot || 0) + ") scale(" + n(fx) + " " + n(fy) + ") translate(" + n(-p.x) + " " + n(-p.y) + ')"';
+      }
+      parts.push('<g class="elemento' + (i === sel ? " sel" : "") + '" data-i="' + i + '"' + tr + ">" + inner + "</g>");
     });
     parts.push('<rect class="moldura" x="14" y="14" width="' + (scene.W - 28) + '" height="' + (scene.H - 28) + '" fill="none"/>');
     return svgWrap(parts.join(""), scene.W, scene.H);

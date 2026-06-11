@@ -31,6 +31,23 @@
     return load();
   }
 
+  /* Importa itens de uma coleção (mescla; regenera id em caso de conflito). */
+  function importar(itens) {
+    if (!Array.isArray(itens)) return 0;
+    const list = load();
+    const ids = new Set(list.map((x) => x.id));
+    let add = 0;
+    itens.forEach((it) => {
+      if (!it || !it.svg) return;
+      let id = it.id || "imp_" + add + "_" + (it.dataISO || "").replace(/[^0-9]/g, "").slice(0, 12);
+      while (ids.has(id)) id = id + "x";
+      it.id = id; ids.add(id);
+      list.unshift(it); add++;
+    });
+    persist(list);
+    return add;
+  }
+
   /* Baixa uma string SVG como arquivo .svg */
   function baixarSVG(svgString, nome) {
     const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
@@ -48,8 +65,7 @@
         canvas.width = img.width * escala;
         canvas.height = img.height * escala;
         const ctx = canvas.getContext("2d");
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // sem fundo forçado: o próprio SVG traz o fundo (branco ou transparente)
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         canvas.toBlob(function (blob) { blob ? resolve(blob) : reject(new Error("blob nulo")); }, "image/png");
       };
@@ -96,5 +112,5 @@
     setTimeout(() => URL.revokeObjectURL(url), 4000);
   }
 
-  window.STORAGE = { salvar, remover, listar, baixarSVG, baixarPNG, compartilhar, copiarImagem };
+  window.STORAGE = { salvar, remover, listar, importar, baixarSVG, baixarPNG, compartilhar, copiarImagem };
 })();

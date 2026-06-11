@@ -14,7 +14,15 @@
 window.Effects = (function () {
   "use strict";
 
-  const PADRAO = { espessura: 1, corTraco: "#1b1b1b", corFundo: "#ffffff", rascunho: 0, ondular: 0, simetria: "none" };
+  const PADRAO = { espessura: 1, corTraco: "#1b1b1b", corFundo: "#ffffff", fundo: "branco", rascunho: 0, ondular: 0, simetria: "none", escala: 1, rotacao: 0, inclinar: 0 };
+
+  // Transformação geométrica global (escala / rotação / inclinação) sobre o centro.
+  function transformGlobal(fx, W, H) {
+    const e = fx.escala == null ? 1 : fx.escala, r = fx.rotacao || 0, k = fx.inclinar || 0;
+    if (e === 1 && r === 0 && k === 0) return "";
+    const cx = W / 2, cy = H / 2;
+    return "translate(" + cx + " " + cy + ") scale(" + e + ") rotate(" + r + ") skewX(" + k + ") translate(" + (-cx) + " " + (-cy) + ")";
+  }
 
   function novo() { return Object.assign({}, PADRAO); }
 
@@ -41,7 +49,8 @@ window.Effects = (function () {
     const W = d.W, H = d.H, cx = W / 2, cy = H / 2;
     const sw = (2.2 * (fx.espessura || 1)).toFixed(2);
     const stroke = fx.corTraco || "#1b1b1b";
-    const bg = fx.corFundo || d.bg || "#ffffff";
+    // fundo: branco ou transparente (NÃO escala junto com o desenho)
+    const bgFill = fx.fundo === "transparente" ? null : (fx.fundo === "cor" ? (fx.corFundo || "#ffffff") : "#ffffff");
 
     // filtro de traço irregular / ondulação
     let defs = "", filtro = "";
@@ -70,10 +79,13 @@ window.Effects = (function () {
       conteudo = copias.join("");
     } else conteudo = d.inner;
 
+    const interno = "<g " + estilo + filtro + ">" + conteudo + "</g>";
+    const trans = transformGlobal(fx, W, H);
+    const corpoFinal = trans ? '<g transform="' + trans + '">' + interno + "</g>" : interno;
+    // o retângulo de fundo fica FORA do grupo transformado → nunca escala/gira junto
+    const bgRect = bgFill ? '<rect class="bg" x="0" y="0" width="' + W + '" height="' + H + '" fill="' + bgFill + '"/>' : "";
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + " " + H + '" width="' + W + '" height="' + H + '">' +
-      defs +
-      '<rect class="bg" x="0" y="0" width="' + W + '" height="' + H + '" fill="' + bg + '"/>' +
-      "<g " + estilo + filtro + ">" + conteudo + "</g></svg>";
+      defs + bgRect + corpoFinal + "</svg>";
   }
 
   return { novo: novo, aplicar: aplicar, desmontar: desmontar, PADRAO: PADRAO };

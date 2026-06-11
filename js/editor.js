@@ -94,6 +94,10 @@ window.SceneEditor = (function () {
   function op(fn) { if (sel < 0) return; fn(scene.placements[sel]); render(); }
   function escalar(f) { op((p) => { p.s = clamp(p.s * f, 0.2, 3.2); }); }
   function girar(d) { op((p) => { p.rot = (p.rot + d) % 360; }); }
+  function esticarX(f) { op((p) => { p.fx = clamp((p.fx == null ? 1 : p.fx) * f, 0.2, 4); }); }
+  function esticarY(f) { op((p) => { p.fy = clamp((p.fy == null ? 1 : p.fy) * f, 0.2, 4); }); }
+  function flipH() { op((p) => { p.fx = -(p.fx == null ? 1 : p.fx); }); }
+  function flipV() { op((p) => { p.fy = -(p.fy == null ? 1 : p.fy); }); }
   function excluir() { if (sel < 0) return; scene.placements.splice(sel, 1); sel = -1; render(); }
   function duplicar() {
     if (sel < 0) return;
@@ -203,6 +207,7 @@ window.SceneEditor = (function () {
   return {
     mount, unmount, getScene, setScene, getSVG, render, temSelecao,
     escalar, girar, excluir, duplicar, frente, tras, adicionar, autoArranjar, embaralhar, separar,
+    esticarX, esticarY, flipH, flipV,
     getPlacements, selIndice, selecionarIndice, setOculto, setTravado, moverCamada,
   };
 })();
