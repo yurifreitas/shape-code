@@ -1,0 +1,321 @@
+{
+  "versao": "1.0.0",
+  "atualizadoEm": "2026-06-11",
+  "descricao": "Dataset educacional de geradores de desenhos vetoriais infantis para pintar, mapeados a áreas do cérebro estimuladas durante a atividade.",
+  "areasCerebro": {
+    "visual": {
+      "nome": "Córtex Visual",
+      "regiao": "Lobo occipital",
+      "cor": "#e63946",
+      "estimulo": "Percepção de cores, contraste, formas e figura-fundo."
+    },
+    "motora": {
+      "nome": "Coordenação Motora Fina",
+      "regiao": "Córtex motor + cerebelo",
+      "cor": "#f4a261",
+      "estimulo": "Controle do traço, preensão e precisão ao preencher regiões pequenas."
+    },
+    "espacial": {
+      "nome": "Raciocínio Espacial",
+      "regiao": "Lobo parietal",
+      "cor": "#2a9d8f",
+      "estimulo": "Geometria, simetria, rotação mental e relações entre partes."
+    },
+    "criativa": {
+      "nome": "Criatividade e Imaginação",
+      "regiao": "Lobo frontal / hemisfério direito",
+      "cor": "#9b5de5",
+      "estimulo": "Escolhas estéticas livres, composição e expressão pessoal."
+    },
+    "atencao": {
+      "nome": "Atenção e Planejamento",
+      "regiao": "Córtex pré-frontal",
+      "cor": "#3a86ff",
+      "estimulo": "Foco sustentado, autocontrole e sequência de ações."
+    },
+    "padroes": {
+      "nome": "Reconhecimento de Padrões",
+      "regiao": "Redes parieto-temporais",
+      "cor": "#ffbe0b",
+      "estimulo": "Repetição, ritmo visual, recursão e previsão de continuidade."
+    },
+    "linguagem": {
+      "nome": "Linguagem e Nomeação",
+      "regiao": "Lobo temporal (Broca/Wernicke)",
+      "cor": "#ff6392",
+      "estimulo": "Nomear elementos, contar histórias sobre a cena pintada."
+    },
+    "emocional": {
+      "nome": "Regulação Emocional",
+      "regiao": "Sistema límbico",
+      "cor": "#06d6a0",
+      "estimulo": "Calma, prazer e autorregulação durante a atividade."
+    }
+  },
+  "geradores": [
+    {
+      "id": "forma",
+      "nome": "Forma simples",
+      "icone": "⬠",
+      "descricao": "Uma forma ou curva básica (círculo, estrela, gota, coração, onda...). Ideal para os laços do Estúdio.",
+      "porque": "Reconhecer e nomear formas básicas é a base da geometria e da leitura visual. No Estúdio, multiplicar uma forma simples com laços cria padrões orgânicos complexos.",
+      "faixaEtaria": "3-12",
+      "areas": ["visual", "espacial", "linguagem", "motora"],
+      "params": {
+        "tipo": { "tipo": "select", "opcoes": ["circulo", "quadrado", "triangulo", "hexagono", "estrela", "coracao", "gota", "folha", "flor", "anel", "onda"], "padrao": "gota", "rotulo": "Forma" },
+        "tamanho": { "tipo": "range", "min": 40, "max": 160, "padrao": 100, "rotulo": "Tamanho" }
+      }
+    },
+    {
+      "id": "mandala",
+      "nome": "Mandala",
+      "icone": "❂",
+      "descricao": "Simetria radial com anéis e pétalas. Excelente para foco e calma.",
+      "porque": "A simetria radial força o cérebro a perceber relações entre as partes e o todo; o preenchimento repetitivo de regiões pequenas treina coordenação fina e induz estado de atenção relaxada.",
+      "faixaEtaria": "5-12",
+      "areas": ["espacial", "motora", "atencao", "emocional", "padroes"],
+      "params": {
+        "complexidade": { "tipo": "range", "min": 1, "max": 6, "padrao": 3, "rotulo": "Complexidade" },
+        "petalas": { "tipo": "range", "min": 6, "max": 16, "padrao": 10, "rotulo": "Pétalas" }
+      }
+    },
+    {
+      "id": "tesselacao",
+      "nome": "Tesselação Geométrica",
+      "icone": "▦",
+      "descricao": "Malha de polígonos que se encaixam sem sobras (triângulos/hexágonos).",
+      "porque": "Tesselações revelam regularidade e como formas preenchem o plano, fortalecendo raciocínio geométrico e reconhecimento de padrões.",
+      "faixaEtaria": "6-12",
+      "areas": ["espacial", "padroes", "visual", "atencao"],
+      "params": {
+        "tipo": { "tipo": "select", "opcoes": ["triangulos", "hexagonos", "losangos"], "padrao": "hexagonos", "rotulo": "Forma" },
+        "densidade": { "tipo": "range", "min": 3, "max": 10, "padrao": 6, "rotulo": "Densidade" }
+      }
+    },
+    {
+      "id": "hiperespaco",
+      "nome": "Hiperespaço (4D)",
+      "icone": "◈",
+      "descricao": "Projeções de figuras de dimensões superiores: hipercubo (tesseract) e politopos.",
+      "porque": "Visualizar projeções de 4D em 2D desafia a rotação mental e a imaginação espacial além do mundo físico — núcleo da 'hiperdimensionalidade'. Treina o lobo parietal em um nível abstrato avançado.",
+      "faixaEtaria": "8-15",
+      "areas": ["espacial", "criativa", "padroes", "atencao"],
+      "params": {
+        "figura": { "tipo": "select", "opcoes": ["tesseract", "5-celula", "16-celula", "24-celula", "clifford", "hopf", "hipercubo-aninhado"], "padrao": "tesseract", "rotulo": "Politopo 4D" },
+        "rotacao": { "tipo": "range", "min": 0, "max": 100, "padrao": 30, "rotulo": "Rotação 4D (planos XW/YZ)" }
+      }
+    },
+    {
+      "id": "fractal",
+      "nome": "Árvore Fractal",
+      "icone": "❦",
+      "descricao": "Galhos que se ramificam de forma recursiva, terminando em folhas e flores.",
+      "porque": "A recursão (o mesmo padrão em escalas diferentes) ensina pensamento hierárquico e auto-similaridade, conectando padrões e criatividade.",
+      "faixaEtaria": "6-14",
+      "areas": ["padroes", "criativa", "espacial", "motora"],
+      "params": {
+        "profundidade": { "tipo": "range", "min": 3, "max": 8, "padrao": 6, "rotulo": "Ramificações" },
+        "angulo": { "tipo": "range", "min": 15, "max": 45, "padrao": 28, "rotulo": "Abertura" }
+      }
+    },
+    {
+      "id": "borboleta",
+      "nome": "Borboleta Simétrica",
+      "icone": "✦",
+      "descricao": "Asas em espelho com padrões; pintar os dois lados iguais é o desafio.",
+      "porque": "A simetria bilateral incentiva a criança a coordenar os dois lados e planejar a cor antes — integração entre hemisférios e controle motor.",
+      "faixaEtaria": "4-10",
+      "areas": ["motora", "espacial", "visual", "emocional"],
+      "params": {
+        "detalhe": { "tipo": "range", "min": 2, "max": 6, "padrao": 4, "rotulo": "Detalhe das asas" }
+      }
+    },
+    {
+      "id": "reacaodifusao",
+      "nome": "Reação-Difusão (Turing)",
+      "icone": "🦠",
+      "descricao": "Padrões orgânicos de Turing (Gray-Scott) convertidos em contornos para colorir.",
+      "porque": "Padrões de reação-difusão são os mesmos que a natureza usa em peles de animais, corais e folhas. Colorir suas curvas treina percepção de figura-fundo, atenção sustentada e leitura de formas complexas e auto-organizadas.",
+      "faixaEtaria": "7-15",
+      "areas": ["visual", "padroes", "atencao", "motora", "espacial"],
+      "algoritmo": "Gray-Scott (fractal/HyperSpectralEngine, tetramath) → marching squares → SVG",
+      "params": {
+        "regime": { "tipo": "select", "opcoes": ["coral", "labirinto", "celulas", "pontos", "teia"], "padrao": "coral", "rotulo": "Padrão" },
+        "detalhe": { "tipo": "range", "min": 1, "max": 6, "padrao": 3, "rotulo": "Maturação" },
+        "linhas": { "tipo": "range", "min": 2, "max": 8, "padrao": 3, "rotulo": "Níveis de contorno" }
+      }
+    },
+    {
+      "id": "geometriasagrada",
+      "nome": "Geometria Sagrada",
+      "icone": "🌀",
+      "descricao": "Fluxo de partículas com simetria radial e espiral de Fibonacci, em contornos.",
+      "porque": "Combina simetria radial, proporção áurea e fluxo — a criança percebe ordem matemática na beleza. Estimula raciocínio espacial, padrões e um estado de atenção contemplativa.",
+      "faixaEtaria": "8-15",
+      "areas": ["espacial", "padroes", "criativa", "atencao", "emocional"],
+      "algoritmo": "Campo de fluxo Fibonacci/simetria (fractal/main.py get_sacred_flow) → marching squares → SVG",
+      "params": {
+        "simetria": { "tipo": "select", "opcoes": ["3", "4", "5", "6", "8", "12"], "padrao": "6", "rotulo": "Simetria" },
+        "linhas": { "tipo": "range", "min": 3, "max": 9, "padrao": 4, "rotulo": "Níveis de contorno" }
+      }
+    },
+    {
+      "id": "caleidoscopio",
+      "nome": "Caleidoscópio",
+      "icone": "🔮",
+      "descricao": "Formas aleatórias replicadas por simetria radial e reflexão — nunca repete.",
+      "porque": "A simetria de rotação e reflexão treina percepção de padrões e rotação mental, enquanto a imprevisibilidade mantém a atenção engajada.",
+      "faixaEtaria": "5-15",
+      "areas": ["espacial", "padroes", "visual", "atencao", "emocional"],
+      "params": {
+        "simetria": { "tipo": "select", "opcoes": ["4", "5", "6", "8", "10", "12", "16"], "padrao": "8", "rotulo": "Simetria" }
+      }
+    },
+    {
+      "id": "roseta",
+      "nome": "Roseta",
+      "icone": "🌸",
+      "descricao": "Camadas concêntricas de pétalas em rosácea — infinitas variações.",
+      "porque": "Composição radial em camadas estimula raciocínio espacial, contagem e ritmo visual; ótima para foco e relaxamento.",
+      "faixaEtaria": "4-12",
+      "areas": ["espacial", "motora", "atencao", "emocional", "padroes"],
+      "params": {
+        "petalas": { "tipo": "range", "min": 5, "max": 20, "padrao": 10, "rotulo": "Pétalas por camada" },
+        "camadas": { "tipo": "range", "min": 2, "max": 7, "padrao": 4, "rotulo": "Camadas" }
+      }
+    },
+    {
+      "id": "superformula",
+      "nome": "Superfórmula",
+      "icone": "❈",
+      "descricao": "Uma única equação (Gielis) gera flores, estrelas e formas orgânicas.",
+      "porque": "Mostra como uma fórmula matemática descreve incontáveis formas da natureza. Estimula percepção de simetria, padrões e a ligação entre número e forma.",
+      "faixaEtaria": "7-15",
+      "areas": ["espacial", "padroes", "criativa", "visual", "atencao"],
+      "algoritmo": "Superfórmula de Gielis r(θ)=(|cos(mθ/4)|^n2+|sin(mθ/4)|^n3)^(−1/n1)",
+      "params": {
+        "simetria": { "tipo": "range", "min": 2, "max": 16, "padrao": 6, "rotulo": "Simetria (m)" },
+        "forma": { "tipo": "range", "min": 2, "max": 12, "padrao": 4, "rotulo": "Forma (n1)" },
+        "camadas": { "tipo": "range", "min": 2, "max": 7, "padrao": 4, "rotulo": "Camadas" }
+      }
+    },
+    {
+      "id": "espirografo",
+      "nome": "Espirógrafo",
+      "icone": "✺",
+      "descricao": "Hipotrocoides em pétalas — o brinquedo matemático clássico.",
+      "porque": "Curvas de rolagem (hipotrocoides) revelam padrões periódicos e proporções; acompanhar as voltas treina atenção e raciocínio espacial.",
+      "faixaEtaria": "6-14",
+      "areas": ["espacial", "padroes", "motora", "atencao", "emocional"],
+      "algoritmo": "Hipotrocoide x=a·cosθ+d·cos(aθ), y=a·sinθ−d·sin(aθ)",
+      "params": {
+        "lobos": { "tipo": "range", "min": 3, "max": 12, "padrao": 6, "rotulo": "Lóbulos" },
+        "profundidade": { "tipo": "range", "min": 1, "max": 10, "padrao": 5, "rotulo": "Profundidade" },
+        "camadas": { "tipo": "range", "min": 1, "max": 6, "padrao": 4, "rotulo": "Camadas" }
+      }
+    },
+    {
+      "id": "vitral",
+      "nome": "Vitral (Voronoi)",
+      "icone": "🔷",
+      "descricao": "Diagrama de Voronoi com relaxação de Lloyd — células de vitral/mosaico.",
+      "porque": "Diagramas de Voronoi descrevem como o espaço se divide em torno de pontos (usado em biologia, geografia, cristais). Colorir as células treina percepção de regiões e fronteiras.",
+      "faixaEtaria": "6-15",
+      "areas": ["visual", "espacial", "padroes", "atencao", "motora"],
+      "algoritmo": "Voronoi por recorte de semiplanos + relaxação de Lloyd (estado da arte; cf. d3-voronoi)",
+      "params": {
+        "celulas": { "tipo": "range", "min": 12, "max": 60, "padrao": 28, "rotulo": "Células" },
+        "relaxar": { "tipo": "range", "min": 0, "max": 3, "padrao": 2, "rotulo": "Relaxação (Lloyd)" }
+      }
+    },
+    {
+      "id": "lowpoly",
+      "nome": "Low-Poly",
+      "icone": "▲",
+      "descricao": "Malha de triângulos por triangulação de Delaunay — estilo low-poly.",
+      "porque": "A triangulação de Delaunay é o jeito ótimo de ligar pontos em triângulos (usada em jogos, mapas 3D, malhas). Estimula raciocínio espacial e percepção de superfícies.",
+      "faixaEtaria": "7-15",
+      "areas": ["espacial", "padroes", "visual", "atencao"],
+      "algoritmo": "Triangulação de Delaunay (Bowyer–Watson)",
+      "params": {
+        "pontos": { "tipo": "range", "min": 12, "max": 90, "padrao": 40, "rotulo": "Pontos" }
+      }
+    },
+    {
+      "id": "truchet",
+      "nome": "Truchet",
+      "icone": "⌒",
+      "descricao": "Azulejos de Truchet orientados ao acaso — labirintos e curvas que fluem.",
+      "porque": "Os azulejos de Truchet (séc. XVIII) mostram como regras locais simples geram padrões globais complexos — base da arte generativa. Treina padrões e continuidade visual.",
+      "faixaEtaria": "5-14",
+      "areas": ["padroes", "espacial", "visual", "atencao", "motora"],
+      "algoritmo": "Azulejos de Truchet (orientação aleatória por célula)",
+      "params": {
+        "tipo": { "tipo": "select", "opcoes": ["arcos", "diagonais"], "padrao": "arcos", "rotulo": "Estilo" },
+        "grade": { "tipo": "range", "min": 4, "max": 16, "padrao": 8, "rotulo": "Grade" }
+      }
+    },
+    {
+      "id": "circulos",
+      "nome": "Círculos (packing)",
+      "icone": "◉",
+      "descricao": "Empacotamento de círculos sem sobreposição — estilo Apollonian.",
+      "porque": "O empacotamento de círculos aparece na natureza (bolhas, células, sementes) e na matemática (Apollonian gasket). Colorir treina percepção de tamanho e aninhamento.",
+      "faixaEtaria": "4-13",
+      "areas": ["visual", "motora", "padroes", "espacial", "emocional"],
+      "algoritmo": "Empacotamento guloso de círculos (Apollonian)",
+      "params": {
+        "quantidade": { "tipo": "range", "min": 30, "max": 400, "padrao": 160, "rotulo": "Quantidade" }
+      }
+    },
+    {
+      "id": "penrose",
+      "nome": "Penrose",
+      "icone": "✶",
+      "descricao": "Ladrilhamento aperiódico de Penrose (P3) — simetria de 5 que nunca repete.",
+      "porque": "O ladrilhamento de Penrose nunca se repete, mas tem simetria de cinco dobras — ligado à razão áurea e aos quasicristais (Nobel de Química 2011). Raciocínio espacial avançado.",
+      "faixaEtaria": "8-15",
+      "areas": ["espacial", "padroes", "criativa", "atencao"],
+      "algoritmo": "Ladrilhamento P3 de Penrose por deflação (triângulos de Robinson, razão áurea)",
+      "params": {
+        "profundidade": { "tipo": "range", "min": 3, "max": 6, "padrao": 5, "rotulo": "Subdivisões" }
+      }
+    },
+    {
+      "id": "campovetorial",
+      "nome": "Campo Acoplado",
+      "icone": "🌊",
+      "descricao": "Vórtices e densidade de um sistema de PDEs acopladas (continuidade + vorticidade).",
+      "porque": "Estruturas de fluxo e vórtices mostram como ordem emerge do caos — leitura de formas fluidas complexas, atenção sustentada e percepção figura-fundo avançada.",
+      "faixaEtaria": "9-15",
+      "areas": ["visual", "padroes", "atencao", "espacial", "criativa"],
+      "algoritmo": "Campo acoplado ρ–Φ–v com termo baroclínico (simulation/src/engine.js) → marching squares → SVG",
+      "params": {
+        "detalhe": { "tipo": "range", "min": 1, "max": 6, "padrao": 3, "rotulo": "Evolução" },
+        "linhas": { "tipo": "range", "min": 2, "max": 8, "padrao": 4, "rotulo": "Níveis de contorno" }
+      }
+    },
+    {
+      "id": "cena",
+      "nome": "Montar Cena (∞)",
+      "icone": "✿",
+      "descricao": "Cenários procedurais por tema (campo, cidade, praia, espaço...). 60+ elementos, infinitas combinações.",
+      "porque": "Compor cenas próprias ativa imaginação, narrativa e nomeação de objetos. A variação infinita sustenta o interesse e o planejamento da composição.",
+      "faixaEtaria": "3-12",
+      "areas": ["criativa", "linguagem", "atencao", "emocional", "visual"],
+      "algoritmo": "Compositor procedural com 60+ elementos paramétricos e 9 temas (elements.js)",
+      "params": {
+        "tema": { "tipo": "select", "opcoes": ["campo", "cidade", "praia", "floresta", "fazenda", "jardim", "mar", "espaco", "fantasia"], "padrao": "campo", "rotulo": "Tema" },
+        "arranjo": { "tipo": "select", "opcoes": ["cena", "espiral", "grade", "anel"], "padrao": "cena", "rotulo": "Arranjo (espiral = ângulo áureo)" },
+        "densidade": { "tipo": "range", "min": 4, "max": 24, "padrao": 12, "rotulo": "Quantidade" },
+        "variar": { "tipo": "range", "min": 0, "max": 100, "padrao": 50, "rotulo": "Variação (rotação/escala)" },
+        "elementos": {
+          "tipo": "multi",
+          "opcoes": ["sol", "lua", "nuvem", "estrela", "arcoiris", "balao", "foguete", "planeta", "passaro", "borboleta", "abelha", "arvore", "pinheiro", "palmeira", "flor", "florvogel", "girassol", "tulipa", "folha", "samambaia", "cogumelo", "cacto", "montanha", "casa", "castelo", "predio", "igreja", "moinho", "farol", "gato", "cachorro", "coelho", "ovelha", "vaca", "urso", "coruja", "tartaruga", "joaninha", "peixe", "baleia", "polvo", "caranguejo", "estrelamar", "barco", "veleiro", "carro", "trem", "bicicleta", "coracao", "diamante", "cristal"],
+          "padrao": [],
+          "rotulo": "Montar à mão (opcional — vazio = usa o tema)"
+        }
+      }
+    }
+  ]
+}
