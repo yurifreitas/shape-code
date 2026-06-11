@@ -196,8 +196,10 @@ window.Studio = (function () {
     const ac = $("st-acoes"); ac.innerHTML = "";
     const mk = (txt, fn, cls) => { const b = document.createElement("button"); b.className = "btn" + (cls ? " " + cls : ""); b.textContent = txt; b.onclick = fn; return b; };
     ac.appendChild(mk("💾 Salvar", () => { const nome = prompt("Nome:", "Composição " + new Date().toLocaleDateString("pt-BR")); if (nome === null) return; window.STORAGE.salvar({ nome: nome || "Composição", gerador: "studio", areas: ["criativa", "espacial", "padroes", "atencao"], params: {}, svg: compor(), dataISO: new Date().toISOString() }); toast("Salvo na coleção ✓"); }, "primario"));
+    ac.appendChild(mk("📤 Compartilhar", () => { toast("Preparando…"); window.STORAGE.compartilhar(compor(), "estudio").then((r) => toast(r === "compartilhado" ? "Compartilhado ✓" : r === "baixado" ? "Baixado" : "Indisponível")); }));
+    ac.appendChild(mk("📋 Copiar", () => window.STORAGE.copiarImagem(compor()).then((r) => toast(r === "copiado" ? "Copiado ✓" : "Indisponível"))));
     ac.appendChild(mk("🖨 Imprimir", () => imprimir(compor())));
-    ac.appendChild(mk("⬇ PNG", () => window.STORAGE.baixarPNG(compor(), "estudio")));
+    ac.appendChild(mk("⬇ PNG", () => window.STORAGE.baixarPNG(compor(), "estudio", 3)));
     ac.appendChild(mk("⬇ SVG", () => window.STORAGE.baixarSVG(compor(), "estudio")));
   }
 

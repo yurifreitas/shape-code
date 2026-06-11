@@ -37,24 +37,53 @@
     triggerDownload(URL.createObjectURL(blob), (nome || "desenho") + ".svg");
   }
 
-  /* Rasteriza o SVG em PNG (alta resolução) e baixa */
-  function baixarPNG(svgString, nome, escala) {
+  /* Rasteriza um SVG em PNG (alta resolução) e devolve um Blob (Promise). */
+  function svgParaBlobPng(svgString, escala) {
     escala = escala || 2;
-    const img = new Image();
-    const svg64 = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgString)));
-    img.onload = function () {
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width * escala;
-      canvas.height = img.height * escala;
-      const ctx = canvas.getContext("2d");
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      canvas.toBlob(function (blob) {
-        triggerDownload(URL.createObjectURL(blob), (nome || "desenho") + ".png");
-      }, "image/png");
-    };
-    img.src = svg64;
+    return new Promise(function (resolve, reject) {
+      const img = new Image();
+      const svg64 = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgString)));
+      img.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width * escala;
+        canvas.height = img.height * escala;
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(function (blob) { blob ? resolve(blob) : reject(new Error("blob nulo")); }, "image/png");
+      };
+      img.onerror = reject;
+      img.src = svg64;
+    });
+  }
+
+  /* Baixa o SVG como PNG (escala 2 = boa qualidade; 3 = alta). */
+  function baixarPNG(svgString, nome, escala) {
+    svgParaBlobPng(svgString, escala || 2).then(function (blob) {
+      triggerDownload(URL.createObjectURL(blob), (nome || "desenho") + ".png");
+    });
+  }
+
+  /* Compartilha o desenho (PNG) via menu nativo do sistema (ótimo no celular).
+     Sem suporte → baixa o PNG. Retorna Promise<"compartilhado"|"baixado"|"erro">. */
+  function compartilhar(svgString, nome) {
+    return svgParaBlobPng(svgString, 2).then(function (blob) {
+      const file = new File([blob], (nome || "desenho") + ".png", { type: "image/png" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        return navigator.share({ files: [file], title: "Meu desenho", text: "Feito no Desenhos para Pintar" }).then(function () { return "compartilhado"; });
+      }
+      triggerDownload(URL.createObjectURL(blob), (nome || "desenho") + ".png");
+      return "baixado";
+    }).catch(function () { return "erro"; });
+  }
+
+  /* Copia a imagem (PNG) para a área de transferência. */
+  function copiarImagem(svgString) {
+    if (!navigator.clipboard || !window.ClipboardItem) return Promise.resolve("erro");
+    return svgParaBlobPng(svgString, 2).then(function (blob) {
+      return navigator.clipboard.write([new window.ClipboardItem({ "image/png": blob })]).then(function () { return "copiado"; });
+    }).catch(function () { return "erro"; });
   }
 
   function triggerDownload(url, filename) {
@@ -67,5 +96,5 @@
     setTimeout(() => URL.revokeObjectURL(url), 4000);
   }
 
-  window.STORAGE = { salvar, remover, listar, baixarSVG, baixarPNG };
+  window.STORAGE = { salvar, remover, listar, baixarSVG, baixarPNG, compartilhar, copiarImagem };
 })();

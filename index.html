@@ -17,8 +17,9 @@
     </div>
     <nav class="abas">
       <button id="tab-criar" class="ativo">Criar</button>
-      <button id="tab-studio">Estúdio (Blocos)</button>
-      <button id="tab-colecao">Minha Coleção</button>
+      <button id="tab-studio">Estúdio</button>
+      <button id="tab-colecao">Coleção</button>
+      <button id="btn-foco" title="Modo foco (esconder painéis)">⛶</button>
     </nav>
   </header>
 
@@ -120,8 +121,10 @@
       </div>
 
       <div class="acoes">
-        <button id="btn-salvar" class="btn primario">💾 Salvar na coleção</button>
-        <button id="btn-massa" class="btn">⚃ Gerar 50 (revisar)</button>
+        <button id="btn-salvar" class="btn primario">💾 Salvar</button>
+        <button id="btn-compartilhar" class="btn">📤 Compartilhar</button>
+        <button id="btn-copiar" class="btn">📋 Copiar</button>
+        <button id="btn-massa" class="btn">⚃ Gerar lote</button>
         <button id="btn-imprimir" class="btn">🖨 Imprimir</button>
         <button id="btn-png" class="btn">⬇ PNG</button>
         <button id="btn-svg" class="btn">⬇ SVG</button>
@@ -158,6 +161,22 @@
       <div id="st-blocos" class="st-blocos"></div>
     </aside>
   </main>
+
+  <!-- Gaveta de cores (mobile) -->
+  <div id="sheet-paleta" class="sheet">
+    <div class="sheet-grip"></div>
+    <div class="sheet-titulo">Cores</div>
+    <div id="sheet-cores" class="sheet-cores"></div>
+  </div>
+
+  <!-- Barra inferior (mobile) -->
+  <nav id="mobile-bar" class="mobile-bar">
+    <button data-mb="gerar">↻<small>Gerar</small></button>
+    <button data-mb="cores">🎨<small>Cores</small></button>
+    <button data-mb="salvar">💾<small>Salvar</small></button>
+    <button data-mb="compartilhar">📤<small>Enviar</small></button>
+    <button data-mb="foco">⛶<small>Foco</small></button>
+  </nav>
 
   <div id="toast" class="toast"></div>
 

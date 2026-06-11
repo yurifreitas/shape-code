@@ -382,8 +382,64 @@
     $("tab-criar").classList.toggle("ativo", aba === "criar");
     $("tab-studio").classList.toggle("ativo", aba === "studio");
     $("tab-colecao").classList.toggle("ativo", aba === "colecao");
+    $("mobile-bar").classList.toggle("on", aba === "criar"); // barra mobile só na Criar
+    if (aba !== "criar") fecharSheet();
     if (aba === "colecao") renderColecao();
     if (aba === "studio" && window.Studio) window.Studio.init();
+  }
+
+  // ───────────────── MOBILE: seções recolhíveis + gaveta de cores ──────────────
+  function tornarColapsavel(painel) {
+    if (!painel) return;
+    const filhos = Array.from(painel.children);
+    for (let i = 0; i < filhos.length; i++) {
+      const h = filhos[i];
+      if (!(h.classList && h.classList.contains("secao"))) continue;
+      const corpo = document.createElement("div");
+      corpo.className = "secao-corpo";
+      let j = i + 1;
+      while (j < filhos.length && !(filhos[j].classList && filhos[j].classList.contains("secao"))) { corpo.appendChild(filhos[j]); j++; }
+      h.after(corpo);
+      h.classList.add("secao-tog");
+      h.onclick = () => { const f = h.classList.toggle("fechado"); corpo.style.display = f ? "none" : ""; };
+    }
+  }
+
+  function renderSheetPaleta() {
+    const box = $("sheet-cores");
+    box.innerHTML = "";
+    PALETA.forEach((c) => {
+      const b = document.createElement("button");
+      b.className = "swatch"; b.style.background = c;
+      if (c === "#ffffff") b.style.border = "2px solid #ccc";
+      b.onclick = () => {
+        estado.cor = c; estado.modo = "pintar";
+        $("btn-borracha").classList.remove("ativo");
+        document.querySelectorAll("#paleta .swatch").forEach((s) => s.classList.toggle("sel", s.style.background === b.style.background));
+        fecharSheet();
+      };
+      box.appendChild(b);
+    });
+    const er = document.createElement("button"); er.className = "sheet-acao"; er.textContent = "⌫ Borracha";
+    er.onclick = () => { estado.modo = "borracha"; $("btn-borracha").classList.add("ativo"); fecharSheet(); };
+    box.appendChild(er);
+    const lp = document.createElement("button"); lp.className = "sheet-acao"; lp.textContent = "✕ Limpar";
+    lp.onclick = () => { $("svg-host").querySelectorAll(".region").forEach((el) => el.setAttribute("fill", "#ffffff")); fecharSheet(); };
+    box.appendChild(lp);
+  }
+  function fecharSheet() { $("sheet-paleta").classList.remove("aberto"); }
+
+  function bindMobileBar() {
+    document.querySelectorAll("#mobile-bar [data-mb]").forEach((b) => {
+      b.onclick = () => {
+        const a = b.getAttribute("data-mb");
+        if (a === "gerar") gerar(true);
+        else if (a === "cores") { $("sheet-paleta").classList.toggle("aberto"); }
+        else if (a === "salvar") $("btn-salvar").click();
+        else if (a === "compartilhar") $("btn-compartilhar").click();
+        else if (a === "foco") document.body.classList.toggle("foco");
+      };
+    });
   }
 
   // ───────────────────────────── IMPRESSÃO ─────────────────────────────
@@ -407,6 +463,10 @@
     renderPaleta();
     if (window.Effects) bindEfeitos();
     gerar(true);
+    tornarColapsavel($("view-criar").querySelector(".painel"));
+    renderSheetPaleta();
+    bindMobileBar();
+    $("mobile-bar").classList.add("on"); // começa na Criar
 
     $("tab-criar").onclick = () => trocarAba("criar");
     $("tab-studio").onclick = () => trocarAba("studio");
@@ -463,7 +523,17 @@
     };
     $("btn-imprimir").onclick = imprimir;
     $("btn-svg").onclick = () => { const s = svgAtual(); if (s) window.STORAGE.baixarSVG(s, nomeArquivo()); };
-    $("btn-png").onclick = () => { const s = svgAtual(); if (s) window.STORAGE.baixarPNG(s, nomeArquivo()); };
+    $("btn-png").onclick = () => { const s = svgAtual(); if (s) window.STORAGE.baixarPNG(s, nomeArquivo(), 3); };
+    $("btn-foco").onclick = () => { document.body.classList.toggle("foco"); };
+    $("btn-compartilhar").onclick = () => {
+      const s = svgAtual(); if (!s) return;
+      toast("Preparando…");
+      window.STORAGE.compartilhar(s, nomeArquivo()).then((r) => toast(r === "compartilhado" ? "Compartilhado ✓" : r === "baixado" ? "Baixado (compartilhar indisponível)" : "Não foi possível compartilhar"));
+    };
+    $("btn-copiar").onclick = () => {
+      const s = svgAtual(); if (!s) return;
+      window.STORAGE.copiarImagem(s).then((r) => toast(r === "copiado" ? "Imagem copiada ✓" : "Cópia indisponível neste navegador"));
+    };
     $("btn-salvar").onclick = () => {
       const s = svgAtual();
       if (!s) return;
