@@ -16,10 +16,10 @@
       </div>
     </div>
     <nav class="abas">
-      <button id="tab-criar" class="ativo">Criar</button>
-      <button id="tab-desenhar">Desenhar</button>
-      <button id="tab-studio">Estúdio</button>
-      <button id="tab-colecao">Coleção</button>
+      <button id="tab-criar" class="ativo">🎨 Criar</button>
+      <button id="tab-desenhar">✏️ Desenhar</button>
+      <button id="tab-studio">🧩 Estúdio</button>
+      <button id="tab-colecao">📁 Coleção</button>
       <button id="btn-foco" title="Modo foco (esconder painéis)">⛶</button>
     </nav>
   </header>
@@ -36,9 +36,12 @@
         <p id="g-descricao" class="desc"></p>
         <span id="g-faixa" class="faixa"></span>
         <div id="g-areas" class="chips"></div>
-        <p class="rotulo-mini">Por que estimula o cérebro</p>
-        <p id="g-porque" class="porque"></p>
-        <p id="g-algoritmo" class="algoritmo"></p>
+        <button id="g-info-btn" class="g-info-btn" type="button">ⓘ Por que faz bem?</button>
+        <div id="g-edu" class="g-edu" style="display:none">
+          <p class="rotulo-mini">Por que estimula o cérebro</p>
+          <p id="g-porque" class="porque"></p>
+          <p id="g-algoritmo" class="algoritmo"></p>
+        </div>
       </div>
 
       <h2 class="secao">Ajustes</h2>
@@ -138,13 +141,7 @@
       </div>
 
       <div class="acoes">
-        <button id="btn-salvar" class="btn primario">💾 Salvar</button>
-        <button id="btn-compartilhar" class="btn">📤 Compartilhar</button>
-        <button id="btn-copiar" class="btn">📋 Copiar</button>
-        <button id="btn-massa" class="btn">⚃ Gerar lote</button>
-        <button id="btn-imprimir" class="btn">🖨 Imprimir</button>
-        <button id="btn-png" class="btn">⬇ PNG</button>
-        <button id="btn-svg" class="btn">⬇ SVG</button>
+        <button id="btn-export" class="btn primario largo">💾 Salvar &amp; Exportar ▾</button>
       </div>
       <p class="dica">Clique nas regiões do desenho para pintar com a cor selecionada.</p>
     </section>
@@ -222,20 +219,36 @@
     </aside>
   </main>
 
-  <!-- Gaveta de cores (mobile) -->
+  <!-- Estúdio de cores (gaveta) -->
   <div id="sheet-paleta" class="sheet">
     <div class="sheet-grip"></div>
-    <div class="sheet-titulo">Cores</div>
+    <div class="sheet-titulo">🎨 Estúdio de Cores</div>
     <div id="sheet-cores" class="sheet-cores"></div>
   </div>
 
-  <!-- Barra inferior (mobile) -->
+  <!-- Menu: salvar & exportar (1 ícone → tudo) -->
+  <div id="menu-export" class="modal" style="display:none">
+    <div class="modal-box">
+      <div class="modal-topo"><h2>💾 Salvar &amp; Exportar</h2><button id="menu-export-x" class="modal-x">✕</button></div>
+      <div class="menu-grid">
+        <button data-ex="salvar">💾<span>Salvar na coleção</span></button>
+        <button data-ex="compartilhar">📤<span>Compartilhar</span></button>
+        <button data-ex="copiar">📋<span>Copiar imagem</span></button>
+        <button data-ex="png">🖼️<span>Baixar PNG</span></button>
+        <button data-ex="svg">⬇<span>Baixar SVG</span></button>
+        <button data-ex="imprimir">🖨<span>Imprimir</span></button>
+        <button data-ex="lote">⚃<span>Gerar vários (lote)</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navegação inferior (mobile) -->
   <nav id="mobile-bar" class="mobile-bar">
-    <button data-mb="gerar">↻<small>Gerar</small></button>
-    <button data-mb="cores">🎨<small>Cores</small></button>
-    <button data-mb="salvar">💾<small>Salvar</small></button>
-    <button data-mb="compartilhar">📤<small>Enviar</small></button>
-    <button data-mb="foco">⛶<small>Foco</small></button>
+    <button data-nav="criar">🎨<small>Criar</small></button>
+    <button data-nav="desenhar">✏️<small>Desenhar</small></button>
+    <button data-nav="studio">🧩<small>Estúdio</small></button>
+    <button data-nav="colecao">📁<small>Coleção</small></button>
+    <button data-mb="cores">🌈<small>Cores</small></button>
   </nav>
 
   <div id="toast" class="toast"></div>

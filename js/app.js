@@ -28,7 +28,59 @@
     cenaModo: "editar", // editar | pintar (só p/ cena)
     fx: window.Effects ? window.Effects.novo() : null, // efeitos manipuláveis
     baseSVG: null, // SVG gerado antes dos efeitos (p/ reaplicar ao vivo)
+    corA: "#e63946", corB: "#3a86ff", slot: "A", degrade: false, textura: "solido", // mistura de cores
   };
+
+  // paletas grandes p/ exploração infantil
+  const PALETAS = {
+    "Vibrantes": ["#e63946", "#ff6b35", "#f4a261", "#ffbe0b", "#ffd166", "#06d6a0", "#2a9d8f", "#1d9bf0", "#3a86ff", "#4361ee", "#7209b7", "#9b5de5", "#ff6392", "#ff85a1"],
+    "Pastéis": ["#ffadad", "#ffd6a5", "#fdffb6", "#caffbf", "#9bf6ff", "#a0c4ff", "#bdb2ff", "#ffc6ff", "#fcd5ce", "#d8f3dc"],
+    "Terra & Neutros": ["#7f5539", "#9c6644", "#582f0e", "#386641", "#6a994e", "#bc6c25", "#283618", "#6c757d", "#000000", "#ffffff"],
+  };
+
+  // ───────── utilidades de cor ─────────
+  function hslParaHex(h, s, l) {
+    s /= 100; l /= 100;
+    const k = (n) => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const c = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+    const to = (x) => Math.round(255 * x).toString(16).padStart(2, "0");
+    return "#" + to(c(0)) + to(c(8)) + to(c(4));
+  }
+  function hexParaRgb(h) { h = h.replace("#", ""); if (h.length === 3) h = h.split("").map((c) => c + c).join(""); return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]; }
+  function misturarHex(a, b) { const x = hexParaRgb(a), y = hexParaRgb(b); const to = (v) => Math.round(v).toString(16).padStart(2, "0"); return "#" + to((x[0] + y[0]) / 2) + to((x[1] + y[1]) / 2) + to((x[2] + y[2]) / 2); }
+  function garantirGradiente(svg, a, b) {
+    const NS = "http://www.w3.org/2000/svg";
+    const id = "grad_" + a.replace("#", "") + "_" + b.replace("#", "");
+    let defs = svg.querySelector("defs");
+    if (!defs) { defs = document.createElementNS(NS, "defs"); svg.insertBefore(defs, svg.firstChild); }
+    if (!defs.querySelector("#" + id)) {
+      const lg = document.createElementNS(NS, "linearGradient");
+      lg.setAttribute("id", id); lg.setAttribute("x1", "0"); lg.setAttribute("y1", "0"); lg.setAttribute("x2", "1"); lg.setAttribute("y2", "1");
+      [[0, a], [1, b]].forEach((st) => { const s = document.createElementNS(NS, "stop"); s.setAttribute("offset", st[0]); s.setAttribute("stop-color", st[1]); lg.appendChild(s); });
+      defs.appendChild(lg);
+    }
+    return id;
+  }
+  function garantirTextura(svg, tipo, fg) {
+    const NS = "http://www.w3.org/2000/svg";
+    const id = "tex_" + tipo + "_" + fg.replace("#", "");
+    let defs = svg.querySelector("defs");
+    if (!defs) { defs = document.createElementNS(NS, "defs"); svg.insertBefore(defs, svg.firstChild); }
+    if (!defs.querySelector("#" + id)) {
+      let inner = "";
+      if (tipo === "listrado") inner = '<rect width="12" height="12" fill="#ffffff"/><rect width="6" height="12" fill="' + fg + '"/>';
+      else if (tipo === "bolinhas") inner = '<rect width="16" height="16" fill="#ffffff"/><circle cx="8" cy="8" r="4" fill="' + fg + '"/>';
+      else inner = '<rect width="20" height="20" fill="#ffffff"/><rect width="10" height="10" fill="' + fg + '"/><rect x="10" y="10" width="10" height="10" fill="' + fg + '"/>';
+      const size = tipo === "xadrez" ? 20 : (tipo === "bolinhas" ? 16 : 12);
+      const p = document.createElementNS(NS, "pattern");
+      p.setAttribute("id", id); p.setAttribute("width", size); p.setAttribute("height", size); p.setAttribute("patternUnits", "userSpaceOnUse");
+      if (tipo === "listrado") p.setAttribute("patternTransform", "rotate(45)");
+      p.innerHTML = inner;
+      defs.appendChild(p);
+    }
+    return id;
+  }
   const ehCena = () => estado.geradorId === "cena" && window.SceneEditor;
   let layersVisivel = false;
 
@@ -294,8 +346,15 @@
       el.style.cursor = "pointer";
       el.addEventListener("click", (ev) => {
         ev.stopPropagation();
-        const cor = estado.modo === "borracha" ? "#ffffff" : estado.cor;
-        el.setAttribute("fill", cor);
+        if (estado.modo === "conta-gotas") {
+          const fAt = el.getAttribute("fill") || "#ffffff";
+          if (fAt.indexOf("url(") < 0 && fAt !== "none") { estado.cor = fAt; estado.degrade = false; estado.textura = "solido"; }
+          estado.modo = "pintar"; toast("Cor capturada: " + (fAt.indexOf("url(") < 0 ? fAt : "—")); return;
+        }
+        if (estado.modo === "borracha") { el.setAttribute("fill", "#ffffff"); return; }
+        if (estado.textura && estado.textura !== "solido") { el.setAttribute("fill", "url(#" + garantirTextura(svg, estado.textura, estado.cor) + ")"); return; }
+        if (estado.degrade) { el.setAttribute("fill", "url(#" + garantirGradiente(svg, estado.corA, estado.corB) + ")"); return; }
+        el.setAttribute("fill", estado.cor);
       });
     });
   }
@@ -329,6 +388,11 @@
       };
       box.appendChild(b);
     });
+    // botão "mais cores / misturar" — leva ao estúdio de cores, onde se pinta
+    const mais = document.createElement("button");
+    mais.className = "swatch swatch-mais"; mais.textContent = "🎨"; mais.title = "Mais cores e misturar";
+    mais.onclick = () => abrirSheet();
+    box.appendChild(mais);
     // seletor de cor personalizada
     const custom = $("cor-custom");
     custom.value = "#e63946";
@@ -472,7 +536,7 @@
     $("tab-desenhar").classList.toggle("ativo", aba === "desenhar");
     $("tab-studio").classList.toggle("ativo", aba === "studio");
     $("tab-colecao").classList.toggle("ativo", aba === "colecao");
-    $("mobile-bar").classList.toggle("on", aba === "criar"); // barra mobile só na Criar
+    atualizarNav(aba);
     if (aba !== "criar") fecharSheet();
     if (aba === "colecao") renderColecao();
     if (aba === "studio" && window.Studio) window.Studio.init();
@@ -496,41 +560,93 @@
     }
   }
 
-  function renderSheetPaleta() {
+  // Define a cor escolhida (no slot ativo se estiver misturando) e sai do modo borracha.
+  function escolherCor(c) {
+    estado.modo = "pintar";
+    $("btn-borracha").classList.remove("ativo");
+    if (estado.degrade) { estado["cor" + estado.slot] = c; if (estado.slot === "A") estado.cor = c; }
+    else estado.cor = c;
+    document.querySelectorAll("#paleta .swatch").forEach((s) => s.classList.remove("sel"));
+    renderColorStudio();
+  }
+
+  function renderColorStudio() {
     const box = $("sheet-cores");
     box.innerHTML = "";
-    PALETA.forEach((c) => {
-      const b = document.createElement("button");
-      b.className = "swatch"; b.style.background = c;
-      if (c === "#ffffff") b.style.border = "2px solid #ccc";
-      b.onclick = () => {
-        estado.cor = c; estado.modo = "pintar";
-        $("btn-borracha").classList.remove("ativo");
-        document.querySelectorAll("#paleta .swatch").forEach((s) => s.classList.toggle("sel", s.style.background === b.style.background));
-        fecharSheet();
-      };
-      box.appendChild(b);
+    const corAtiva = estado.degrade ? estado["cor" + estado.slot] : estado.cor;
+
+    // 1) Paletas grandes agrupadas
+    Object.keys(PALETAS).forEach((grupo) => {
+      const h = document.createElement("div"); h.className = "cor-grupo-tit"; h.textContent = grupo; box.appendChild(h);
+      const linha = document.createElement("div"); linha.className = "cor-linha";
+      PALETAS[grupo].forEach((c) => {
+        const b = document.createElement("button"); b.className = "swatch-g" + (c === corAtiva ? " sel" : ""); b.style.background = c;
+        if (c === "#ffffff") b.style.border = "2px solid #ccc";
+        b.onclick = () => escolherCor(c);
+        linha.appendChild(b);
+      });
+      box.appendChild(linha);
     });
+
+    // 2) Arco-íris (matiz + brilho)
+    const tit2 = document.createElement("div"); tit2.className = "cor-grupo-tit"; tit2.textContent = "🌈 Escolher do arco-íris"; box.appendChild(tit2);
+    const wrapHue = document.createElement("div"); wrapHue.className = "cor-arco";
+    const hue = document.createElement("input"); hue.type = "range"; hue.min = 0; hue.max = 360; hue.value = 200; hue.className = "slider-hue";
+    const luz = document.createElement("input"); luz.type = "range"; luz.min = 15; luz.max = 85; luz.value = 50; luz.className = "slider-luz";
+    const prev = document.createElement("button"); prev.className = "cor-preview"; prev.textContent = "usar";
+    const att = () => { const c = hslParaHex(+hue.value, 85, +luz.value); prev.style.background = c; prev.dataset.cor = c; };
+    hue.oninput = att; luz.oninput = att; att();
+    prev.onclick = () => escolherCor(prev.dataset.cor);
+    wrapHue.appendChild(hue); wrapHue.appendChild(luz); wrapHue.appendChild(prev);
+    box.appendChild(wrapHue);
+
+    // 3) Misturar duas cores
+    const tit3 = document.createElement("div"); tit3.className = "cor-grupo-tit"; tit3.textContent = "🎨 Misturar duas cores"; box.appendChild(tit3);
+    const mix = document.createElement("div"); mix.className = "cor-mix";
+    const slotBtn = (slot) => { const b = document.createElement("button"); b.className = "mix-slot" + (estado.slot === slot && estado.degrade ? " ativo" : ""); b.style.background = estado["cor" + slot]; b.title = "Cor " + slot; b.textContent = slot; b.onclick = () => { estado.degrade = true; estado.slot = slot; renderColorStudio(); }; return b; };
+    const mais = document.createElement("span"); mais.className = "mix-op"; mais.textContent = "+";
+    const igual = document.createElement("span"); igual.className = "mix-op"; igual.textContent = "=";
+    const result = document.createElement("button"); result.className = "mix-result"; const cm = misturarHex(estado.corA, estado.corB); result.style.background = cm; result.title = "Usar mistura"; result.onclick = () => { estado.degrade = false; escolherCor(cm); };
+    mix.appendChild(slotBtn("A")); mix.appendChild(mais); mix.appendChild(slotBtn("B")); mix.appendChild(igual); mix.appendChild(result);
+    box.appendChild(mix);
+    const degLabel = document.createElement("label"); degLabel.className = "cor-degrade";
+    const degChk = document.createElement("input"); degChk.type = "checkbox"; degChk.checked = estado.degrade;
+    degChk.onchange = () => { estado.degrade = degChk.checked; renderColorStudio(); };
+    degLabel.appendChild(degChk); degLabel.appendChild(document.createTextNode(" Pintar em degradê (A→B)"));
+    box.appendChild(degLabel);
+
+    // 3.5) Texturas de preenchimento
+    const tit4 = document.createElement("div"); tit4.className = "cor-grupo-tit"; tit4.textContent = "🧩 Textura ao pintar"; box.appendChild(tit4);
+    const texRow = document.createElement("div"); texRow.className = "cor-textura";
+    [["solido", "Sólido"], ["listrado", "Listrado"], ["bolinhas", "Bolinhas"], ["xadrez", "Xadrez"]].forEach((t) => {
+      const b = document.createElement("button"); b.className = "tex-btn" + (estado.textura === t[0] ? " sel" : ""); b.textContent = t[1];
+      b.onclick = () => { estado.textura = t[0]; renderColorStudio(); };
+      texRow.appendChild(b);
+    });
+    box.appendChild(texRow);
+
+    // 4) ações
+    const acoes = document.createElement("div"); acoes.className = "cor-acoes";
+    const cg = document.createElement("button"); cg.className = "sheet-acao"; cg.textContent = "💧 Conta-gotas";
+    cg.onclick = () => { estado.modo = "conta-gotas"; $("btn-borracha").classList.remove("ativo"); fecharSheet(); toast("Toque numa cor do desenho para capturá-la"); };
     const er = document.createElement("button"); er.className = "sheet-acao"; er.textContent = "⌫ Borracha";
-    er.onclick = () => { estado.modo = "borracha"; $("btn-borracha").classList.add("ativo"); fecharSheet(); };
-    box.appendChild(er);
-    const lp = document.createElement("button"); lp.className = "sheet-acao"; lp.textContent = "✕ Limpar";
+    er.onclick = () => { estado.modo = "borracha"; estado.degrade = false; estado.textura = "solido"; $("btn-borracha").classList.add("ativo"); fecharSheet(); };
+    const lp = document.createElement("button"); lp.className = "sheet-acao"; lp.textContent = "✕ Limpar tudo";
     lp.onclick = () => { $("svg-host").querySelectorAll(".region").forEach((el) => el.setAttribute("fill", "#ffffff")); fecharSheet(); };
-    box.appendChild(lp);
+    const ok = document.createElement("button"); ok.className = "sheet-acao primario"; ok.textContent = "Pronto ✓"; ok.onclick = fecharSheet;
+    acoes.appendChild(cg); acoes.appendChild(er); acoes.appendChild(lp); acoes.appendChild(ok);
+    box.appendChild(acoes);
   }
+  const renderSheetPaleta = renderColorStudio;
+  function abrirSheet() { renderColorStudio(); $("sheet-paleta").classList.add("aberto"); }
   function fecharSheet() { $("sheet-paleta").classList.remove("aberto"); }
 
   function bindMobileBar() {
-    document.querySelectorAll("#mobile-bar [data-mb]").forEach((b) => {
-      b.onclick = () => {
-        const a = b.getAttribute("data-mb");
-        if (a === "gerar") gerar(true);
-        else if (a === "cores") { $("sheet-paleta").classList.toggle("aberto"); }
-        else if (a === "salvar") $("btn-salvar").click();
-        else if (a === "compartilhar") $("btn-compartilhar").click();
-        else if (a === "foco") document.body.classList.toggle("foco");
-      };
-    });
+    document.querySelectorAll("#mobile-bar [data-nav]").forEach((b) => { b.onclick = () => trocarAba(b.getAttribute("data-nav")); });
+    document.querySelectorAll("#mobile-bar [data-mb]").forEach((b) => { b.onclick = () => { if (b.getAttribute("data-mb") === "cores") { renderColorStudio(); $("sheet-paleta").classList.toggle("aberto"); } }; });
+  }
+  function atualizarNav(aba) {
+    document.querySelectorAll("#mobile-bar [data-nav]").forEach((b) => b.classList.toggle("ativo", b.getAttribute("data-nav") === aba));
   }
 
   // ───────────────────────────── IMPRESSÃO ─────────────────────────────
@@ -555,9 +671,9 @@
     if (window.Effects) bindEfeitos();
     gerar(true);
     tornarColapsavel($("view-criar").querySelector(".painel"));
-    renderSheetPaleta();
+    renderColorStudio();
     bindMobileBar();
-    $("mobile-bar").classList.add("on"); // começa na Criar
+    atualizarNav("criar");
 
     $("tab-criar").onclick = () => trocarAba("criar");
     $("tab-desenhar").onclick = () => trocarAba("desenhar");
@@ -578,6 +694,7 @@
     $("col-importar").onchange = (e) => { if (e.target.files[0]) importarColecao(e.target.files[0]); e.target.value = ""; };
     $("st-nova").onclick = () => window.Studio && window.Studio.novaCamada();
 
+    $("g-info-btn").onclick = () => { const e = $("g-edu"); e.style.display = e.style.display === "none" ? "" : "none"; };
     $("btn-novo").onclick = () => gerar(true);
     $("btn-limpar").onclick = () => {
       $("svg-host").querySelectorAll(".region").forEach((el) => el.setAttribute("fill", "#ffffff"));
@@ -618,7 +735,6 @@
     });
 
     // ----- geração em massa -----
-    $("btn-massa").onclick = abrirMassa;
     $("batch-fechar").onclick = () => { window.Batch.stop(); $("batch-modal").style.display = "none"; };
     $("batch-gerar").onclick = rodarMassa;
     $("batch-parar").onclick = () => window.Batch.stop();
@@ -630,35 +746,24 @@
       estado.modo = estado.modo === "borracha" ? "pintar" : "borracha";
       this.classList.toggle("ativo", estado.modo === "borracha");
     };
-    $("btn-imprimir").onclick = imprimir;
-    $("btn-svg").onclick = () => { const s = svgAtual(); if (s) window.STORAGE.baixarSVG(s, nomeArquivo()); };
-    $("btn-png").onclick = () => { const s = svgAtual(); if (s) window.STORAGE.baixarPNG(s, nomeArquivo(), 3); };
     $("btn-foco").onclick = () => { document.body.classList.toggle("foco"); };
-    $("btn-compartilhar").onclick = () => {
-      const s = svgAtual(); if (!s) return;
-      toast("Preparando…");
-      window.STORAGE.compartilhar(s, nomeArquivo()).then((r) => toast(r === "compartilhado" ? "Compartilhado ✓" : r === "baixado" ? "Baixado (compartilhar indisponível)" : "Não foi possível compartilhar"));
-    };
-    $("btn-copiar").onclick = () => {
-      const s = svgAtual(); if (!s) return;
-      window.STORAGE.copiarImagem(s).then((r) => toast(r === "copiado" ? "Imagem copiada ✓" : "Cópia indisponível neste navegador"));
-    };
-    $("btn-salvar").onclick = () => {
-      const s = svgAtual();
-      if (!s) return;
-      const g = geradorAtual();
-      const nome = prompt("Nome do desenho:", g.nome + " " + new Date().toLocaleDateString("pt-BR"));
-      if (nome === null) return;
-      window.STORAGE.salvar({
-        nome: nome || g.nome,
-        gerador: g.id,
-        areas: g.areas,
-        params: JSON.parse(JSON.stringify(estado.params)),
-        svg: s,
-        dataISO: dataISO(),
-      });
-      toast("Salvo na sua coleção ✓");
-    };
+    // menu único: Salvar & Exportar
+    $("btn-export").onclick = () => { $("menu-export").style.display = "flex"; };
+    $("menu-export-x").onclick = () => { $("menu-export").style.display = "none"; };
+    $("menu-export").onclick = (ev) => { if (ev.target === $("menu-export")) $("menu-export").style.display = "none"; };
+    document.querySelectorAll("#menu-export [data-ex]").forEach((b) => {
+      b.onclick = () => {
+        const a = b.getAttribute("data-ex");
+        $("menu-export").style.display = "none";
+        if (a === "salvar") acaoSalvar();
+        else if (a === "compartilhar") acaoCompartilhar();
+        else if (a === "copiar") acaoCopiar();
+        else if (a === "png") acaoPng();
+        else if (a === "svg") acaoSvg();
+        else if (a === "imprimir") imprimir();
+        else if (a === "lote") abrirMassa();
+      };
+    });
   }
 
   // ───────────────────────── LOTE MISTO (receita) ──────────────────────
@@ -721,6 +826,20 @@
 
   function nomeArquivo() {
     return geradorAtual().id + "-" + Date.now();
+  }
+
+  // ───────────── ações de salvar/exportar (usadas pelo menu único) ─────────────
+  function acaoSvg() { const s = svgAtual(); if (s) window.STORAGE.baixarSVG(s, nomeArquivo()); }
+  function acaoPng() { const s = svgAtual(); if (s) window.STORAGE.baixarPNG(s, nomeArquivo(), 3); }
+  function acaoCompartilhar() { const s = svgAtual(); if (!s) return; toast("Preparando…"); window.STORAGE.compartilhar(s, nomeArquivo()).then((r) => toast(r === "compartilhado" ? "Compartilhado ✓" : r === "baixado" ? "Baixado" : "Não deu pra compartilhar")); }
+  function acaoCopiar() { const s = svgAtual(); if (!s) return; window.STORAGE.copiarImagem(s).then((r) => toast(r === "copiado" ? "Imagem copiada ✓" : "Cópia indisponível neste navegador")); }
+  function acaoSalvar() {
+    const s = svgAtual(); if (!s) return;
+    const g = geradorAtual();
+    const nome = prompt("Nome do desenho:", g.nome + " " + new Date().toLocaleDateString("pt-BR"));
+    if (nome === null) return;
+    window.STORAGE.salvar({ nome: nome || g.nome, gerador: g.id, areas: g.areas, params: JSON.parse(JSON.stringify(estado.params)), svg: s, dataISO: dataISO() });
+    toast("Salvo na sua coleção ✓");
   }
 
   function toast(msg) {

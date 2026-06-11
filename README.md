@@ -1,107 +1,140 @@
-# Desenhos para Pintar · Estímulo Cerebral
+# 🎨 Desenhos para Pintar · Estímulo Cerebral
 
-App web (offline, sem instalação) que **gera, monta, pinta, imprime e salva**
-desenhos vetoriais infantis para colorir. Cada tipo de desenho é catalogado em
-um **dataset JSON** com as **áreas do cérebro** que estimula — foco
-pesquisa/educacional.
+Aplicativo web **offline, sem instalação e sem build** para **gerar, desenhar,
+montar, pintar, imprimir, salvar e compartilhar** desenhos vetoriais (SVG)
+infantis. Cada tipo de desenho é catalogado em um **dataset JSON** com as
+**áreas do cérebro** que estimula — foco em uso pedagógico/pesquisa.
 
-## Como usar
+> **Abra o `index.html`** com duplo‑clique (Chrome, Edge ou Firefox) ou acesse a
+> versão publicada no GitHub Pages. Não precisa de servidor nem internet.
 
-Basta **abrir o `index.html`** com duplo-clique (Chrome, Edge ou Firefox).
-Não precisa de servidor nem internet.
+---
 
-> **Geradores baseados em algoritmos reais** (portados de `Documents/code`):
-> - 🦠 **Reação-Difusão (Turing)** — solver Gray-Scott (`fractal/HyperSpectralEngine`,
->   `tetramath/gray_scott_2d_etdrk4`) → marching squares → contornos SVG. Gera
->   páginas orgânicas como os "Turing 4D".
-> - 🌀 **Geometria Sagrada** — campo de fluxo Fibonacci+simetria
->   (`fractal/main.py get_sacred_flow`) → marching squares → SVG.
->
-> - 🌊 **Campo Acoplado** — sistema de PDEs ρ–Φ–v com termo baroclínico
->   (`simulation/src/engine.js`, JS puro) → contornos SVG. Vórtices e densidade.
->
-> Os geradores de campo vivem em `js/fields.js`. São síncronos e pesados (~1s);
-> o app mostra um spinner durante a geração.
+## ✨ As 4 telas
 
-### Montar Cena (∞) e variedade infinita
-- **`js/elements.js`** — biblioteca de **60+ elementos vetoriais paramétricos**
-  (cada um varia sozinho: nº de janelas, pétalas, manchas, andares…) + um
-  **compositor procedural** com 9 temas (campo, cidade, praia, floresta,
-  fazenda, jardim, mar, espaço, fantasia). Tema + densidade + variação +
-  semente nova a cada clique = combinações praticamente infinitas.
-- **Caleidoscópio** e **Roseta** (em `js/generators.js`) — variedade infinita
-  por simetria/camadas + semente.
+### 🎨 Criar
+Escolha um dos **19 geradores**, ajuste os parâmetros e **clique em "↻ Gerar
+nova variação"** para um desenho único. Depois:
 
-Prévias geradas na pasta: `preview_*.svg`.
+- **Pinte** clicando nas regiões.
+- **🎨 Estúdio de Cores** (botão flutuante): paletas grandes (Vibrantes, Pastéis,
+  Terra), **arco‑íris** (matiz + brilho), **misturar 2 cores**, **pintura em
+  degradê (A→B)**, **conta‑gotas** e **texturas** (listrado, bolinhas, xadrez).
+- **✨ Efeitos manipuláveis** (ao vivo, sem regenerar): escala, rotação,
+  inclinação, espessura, traço irregular, ondular, **simetria/caleidoscópio**
+  (espelho/radial), cor do traço e **fundo branco ou transparente**.
+- **⚃ Gerar lote** misto: "5× de um, 3× de outro…" e exportar tudo em **PDF** ou
+  separado (PNG/SVG).
+- Salvar na coleção · Compartilhar · Copiar · Imprimir · PNG · SVG.
 
-> Os dados ficam em `data/dataset.js` (carregado pela página) e são espelhados
-> em `data/dataset.json` (cópia portátil/canônica do dataset).
+### ✏️ Desenhar
+Desenhador vetorial **à mão livre** (funciona com o dedo/caneta no celular):
 
-### Na tela "Criar"
-1. Escolha o **tipo de desenho** (11 geradores).
-2. Ajuste os **parâmetros**.
-3. Clique em **↻ Gerar nova variação** para um desenho único.
-4. Escolha uma **cor** e **clique nas regiões** do desenho para pintar.
-5. **Salvar na coleção**, **Imprimir**, ou baixar como **PNG/SVG**.
+- **Pincéis**: lápis, caneta, marcador, **pincel caligráfico** (largura variável
+  pela velocidade), giz, **neon** (brilho), spray e borracha.
+- **Formas**: linha, retângulo, elipse, triângulo, estrela, polígono, coração.
+- Cor, tamanho, opacidade; **fundo** branco/transparente/decalque (mostra o
+  desenho da aba Criar por baixo para contornar).
+- Desfazer / Refazer / Limpar; salvar e exportar.
 
-### Editor da cena "Montar Cena (∞)"
-Ao escolher *Montar Cena*, aparece a barra do editor (`js/editor.js`):
-- **✋ Editar / 🖌 Pintar** — alterna entre compor e colorir.
-- **Arraste** qualquer elemento para reposicionar (encaixa no chão/céu/água).
-- Selecionado: **⊕/⊖** escala, **⟲/⟳** gira, **⬆/⬇** camadas, **⧉** duplica,
-  **🗑** exclui.
-- **＋ Adicionar** — paleta com os 60+ elementos por categoria.
-- **⊞ Auto-alinhar** — distribui tudo com espaçamento uniforme e mesma base.
-- **🎲 Embaralhar** — re-sorteia posições mantendo os elementos.
+### 🧩 Estúdio (Scratch de imagens)
+**Camadas infinitas**, cada uma com uma **fonte** (qualquer gerador) e uma
+**pilha de blocos** executada de cima para baixo — como um Scratch:
 
-### Geração em massa (revisar)
-Botão **⚃ Gerar 50 (revisar)** abre uma galeria que gera N variações
-(12/24/50/100) do gerador atual com sementes diferentes (`js/batch.js`),
-preenchendo incrementalmente sem travar. Clique numa miniatura para **abrir**
-no editor, **♥** salva na coleção, **PNG** baixa.
+- **Laços/Lógica**: Repetir, Grade, Radial (encadear = laços aninhados).
+- **Mover/Escalar**: Mover, Escalar, **Esticar X/Y**, **Inclinar**, **Inverter**, Girar.
+- **Aparência**: Espelhar, Traço, Ondular.
+- **Animação (SMIL)**: Girar, Pulsar, Flutuar, Balançar (com play/pause).
+- Por camada: **cor de preenchimento/traço**, **escala/rotação/posição**,
+  opacidade e modo de mistura (blend). Fundo branco ou transparente.
 
-### Na tela "Minha Coleção"
-Seus desenhos salvos (no navegador, via `localStorage`). Reabra, baixe ou exclua.
+### 📁 Coleção
+Tudo que você salvou (no navegador). Para cada item há um **identificador**.
+Você pode **selecionar** itens e:
 
-## Estrutura
+- **🖨 Imprimir tudo** junto (1 por página → vira PDF).
+- **📦 Exportar coleção** (.json) e **📥 Importar** (mescla, sem duplicar).
+- **📤 Compartilhar coleção** inteira (menu nativo do celular).
+- **☑ Sem cor**: gera só o traço (linha para colorir à mão).
+
+> Fluxo: você exporta/compartilha → alguém colore alguns e devolve o `.json` →
+> você importa e imprime tudo junto.
+
+---
+
+## 🧠 Os 19 geradores
+
+| Grupo | Geradores |
+|---|---|
+| **Formas & simetria** | Forma simples · Mandala · Caleidoscópio · Roseta · Borboleta simétrica · Tesselação |
+| **Matemática** | Superfórmula (Gielis) · Espirógrafo (hipotrocoide) · **Hiperespaço 4D** (tesseract, 5/16/24‑célula, toro de Clifford, fibração de Hopf) · **Penrose** (ladrilhamento aperiódico) |
+| **Estado da arte** | **Vitral** (Voronoi + Lloyd) · **Low‑Poly** (Delaunay) · **Truchet** · **Círculos** (packing Apollonian) |
+| **Campos / reação‑difusão** | **Reação‑Difusão** (Gray‑Scott) · **Geometria Sagrada** (filotaxia/Fibonacci) · **Campo Acoplado** (PDEs ρ–Φ–v) · Árvore Fractal |
+| **Montar** | **Montar Cena (∞)**: 60+ elementos paramétricos, 9 temas, arranjos (cena, espiral áurea, grade, anel) — sem sobreposição |
+
+Três geradores de campo são portados de algoritmos próprios (Gray‑Scott,
+filotaxia e PDEs acopladas) → contornos via *marching squares*.
+
+---
+
+## 📂 Estrutura
 
 ```
 Desenhos para pintar/
 ├─ index.html            App (abra este arquivo)
-├─ css/styles.css        Estilos
+├─ css/styles.css        Estilos (responsivo / mobile)
 ├─ js/
-│  ├─ generators.js      Geradores procedurais de SVG
-│  ├─ storage.js         Coleção (localStorage) + export PNG/SVG
-│  └─ app.js             Interface
+│  ├─ generators.js      Geradores procedurais + matemáticos + estado‑da‑arte
+│  ├─ elements.js        60+ elementos de "Montar Cena" + compositor + editor de cena
+│  ├─ editor.js          Editor da cena (arrastar, escalar, camadas, alinhar…)
+│  ├─ fields.js          Reação‑difusão / campos → marching squares → SVG
+│  ├─ effects.js         Efeitos manipuláveis (transform, simetria, filtros, fundo)
+│  ├─ studio.js          Estúdio de blocos (camadas + lógica + animação)
+│  ├─ draw.js            Desenhador à mão livre (pincéis, formas, toque)
+│  ├─ batch.js           Geração em massa por receita (lote misto)
+│  ├─ storage.js         Coleção (localStorage), export PNG/SVG, compartilhar, importar
+│  └─ app.js             Interface, navegação, pintura, estúdio de cores
 └─ data/
    ├─ dataset.js         Dataset usado pela página
    └─ dataset.json       Mesmo dataset, formato portátil (pesquisa)
 ```
 
-## O dataset (pesquisa/educacional)
+---
+
+## 📊 O dataset (pesquisa/educacional)
 
 `data/dataset.json` contém:
 
 - **`areasCerebro`** — marco teórico com 8 funções/regiões (córtex visual,
   coordenação motora, raciocínio espacial, criatividade, atenção, padrões,
-  linguagem, regulação emocional), cada uma com região cerebral, cor e
-  descrição do estímulo.
-- **`geradores`** — cada desenho com: faixa etária, áreas estimuladas
-  (`areas[]`), justificativa pedagógica (`porque`) e parâmetros.
+  linguagem, regulação emocional), cada uma com região cerebral, cor e descrição.
+- **`geradores`** — cada desenho com faixa etária, áreas estimuladas (`areas[]`),
+  justificativa pedagógica (`porque`), algoritmo e parâmetros.
 
-Isso permite consultar, por exemplo, *"quais desenhos estimulam o raciocínio
+Permite consultar, por exemplo, *"quais desenhos estimulam o raciocínio
 espacial?"* ou montar trilhas por idade/função cognitiva.
 
-### Sobre a "hiperdimensionalidade"
-O gerador **Hiperespaço (4D)** projeta figuras de dimensões superiores
-(hipercubo/*tesseract*, hipercubo aninhado e politopo) de 4D → 3D → 2D com
-rotação nos planos X-W e Y-Z. Pintar essas projeções desafia a rotação mental e
-a imaginação espacial além do mundo físico.
-
-## Como crescer o dataset
-
-Adicione um novo gerador em **dois lugares**:
+### Adicionar um gerador
 1. Uma função em `js/generators.js` registrada em `window.GENERATORS`.
-2. Uma entrada em `data/dataset.js` (e `dataset.json`) com `id` igual ao nome
+2. Uma entrada em `data/dataset.js` **e** `dataset.json` com `id` igual ao nome
    da função e os metadados (`areas`, `params`, `faixaEtaria`, `porque`).
-# shape-code
+
+---
+
+## 📱 Mobile
+
+- Abas com ícone + **barra de navegação inferior** (toque no polegar).
+- **Botão flutuante 🎨** abre o estúdio de cores.
+- Canvas grande, toque para pintar/desenhar, alvos de toque ampliados, modais em
+  tela cheia, **modo Foco ⛶** (esconde os painéis).
+
+## 🔗 Exportar e compartilhar
+
+PNG (alta resolução), SVG (vetorial), **fundo transparente**, impressão/PDF,
+**compartilhamento nativo** (Web Share) e **copiar imagem**. A coleção inteira
+pode ser exportada/importada como `.json`.
+
+---
+
+Feito para uma criança explorar formas, cores e lógica — e para educadores
+ligarem cada atividade a uma função cognitiva.
