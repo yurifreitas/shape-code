@@ -346,6 +346,7 @@
       el.style.cursor = "pointer";
       el.addEventListener("click", (ev) => {
         ev.stopPropagation();
+        if (window.__zoomPanning) return; // estava arrastando/dando zoom, não pinta
         if (estado.modo === "conta-gotas") {
           const fAt = el.getAttribute("fill") || "#ffffff";
           if (fAt.indexOf("url(") < 0 && fAt !== "none") { estado.cor = fAt; estado.degrade = false; estado.textura = "solido"; }
@@ -695,6 +696,20 @@
     $("st-nova").onclick = () => window.Studio && window.Studio.novaCamada();
 
     $("g-info-btn").onclick = () => { const e = $("g-edu"); e.style.display = e.style.display === "none" ? "" : "none"; };
+    // zoom + tela cheia no canvas
+    const palcoWrap = $("view-criar").querySelector(".palco-wrap");
+    const zoomCriar = window.ZoomPan ? window.ZoomPan.attach($("palco"), $("svg-host")) : null;
+    document.querySelectorAll("#zoom-ctrls [data-z]").forEach((b) => {
+      b.onclick = () => {
+        const z = b.getAttribute("data-z");
+        if (z === "cheia") { palcoWrap.classList.toggle("cheia"); b.classList.toggle("ativo", palcoWrap.classList.contains("cheia")); return; }
+        if (!zoomCriar) return;
+        if (z === "mais") zoomCriar.zoomIn();
+        else if (z === "menos") zoomCriar.zoomOut();
+        else if (z === "reset") zoomCriar.reset();
+        else if (z === "pan") { b.classList.toggle("ativo", zoomCriar.togglePan()); }
+      };
+    });
     $("btn-novo").onclick = () => gerar(true);
     $("btn-limpar").onclick = () => {
       $("svg-host").querySelectorAll(".region").forEach((el) => el.setAttribute("fill", "#ffffff"));

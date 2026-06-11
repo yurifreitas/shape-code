@@ -355,9 +355,52 @@
     return fieldToSVG(res, { niveis: 4 + (+opts.linhas || 4) });
   }
 
+  // ───────────────── QUASICRISTAL (soma de ondas planas) ─────────────────
+  // f(x,y) = Σ cos(k·(x·cosθᵢ + y·sinθᵢ) + φᵢ), θᵢ = πi/N — padrão quasi-periódico
+  // de simetria N (nunca se repete). Clássico da arte matemática na web.
+  function quasicristalField(opts) {
+    const grid = 132, sym = +opts.simetria || 5;
+    const freq = 0.05 + ((+opts.frequencia || 30) / 100) * 0.35;
+    const r = rng((opts.seed | 0) || 1);
+    const fases = []; for (let i = 0; i < sym; i++) fases.push(r() * Math.PI * 2);
+    const field = new Float32Array(grid * grid);
+    for (let y = 0; y < grid; y++) {
+      for (let x = 0; x < grid; x++) {
+        let s = 0;
+        for (let i = 0; i < sym; i++) { const a = (Math.PI * i) / sym; s += Math.cos(freq * (x * Math.cos(a) + y * Math.sin(a)) + fases[i]); }
+        field[y * grid + x] = s;
+      }
+    }
+    return { field: field, N: grid };
+  }
+  function quasicristal(opts) {
+    return fieldToSVG(quasicristalField(opts), { niveis: 4 + (+opts.linhas || 4) });
+  }
+
+  // ───────────────── CHLADNI (cimática — padrões de vibração) ─────────────────
+  // Linhas nodais de uma placa vibrando: cos(nπx)cos(mπy) − cos(mπx)cos(nπy).
+  function chladniField(opts) {
+    const grid = 150, n = +opts.n || 4, m = +opts.m || 3;
+    const sinal = n === m ? 1 : -1; // n==m com "−" daria campo zero (placa em branco)
+    const field = new Float32Array(grid * grid);
+    for (let y = 0; y < grid; y++) {
+      const v = y / (grid - 1);
+      for (let x = 0; x < grid; x++) {
+        const u = x / (grid - 1);
+        field[y * grid + x] = Math.cos(n * Math.PI * u) * Math.cos(m * Math.PI * v) + sinal * Math.cos(m * Math.PI * u) * Math.cos(n * Math.PI * v);
+      }
+    }
+    return { field: field, N: grid };
+  }
+  function chladni(opts) {
+    return fieldToSVG(chladniField(opts), { niveis: 3 + (+opts.linhas || 3) });
+  }
+
   window.FIELD_GENERATORS = {
     reacaodifusao: reacaodifusao,
     geometriasagrada: geometriasagrada,
     campovetorial: campovetorial,
+    quasicristal: quasicristal,
+    chladni: chladni,
   };
 })();

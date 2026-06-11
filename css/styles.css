@@ -176,7 +176,7 @@ button { font-family: inherit; }
 .sep { width: 1px; height: 26px; background: var(--line); margin: 0 4px; }
 
 .palco {
-  flex: 1; display: grid; place-items: center; position: relative;
+  flex: 1; display: grid; place-items: center; position: relative; overflow: hidden;
   background:
     linear-gradient(45deg, #f7f8fc 25%, transparent 25%) -10px 0,
     linear-gradient(-45deg, #f7f8fc 25%, transparent 25%) -10px 0,
@@ -193,6 +193,24 @@ button { font-family: inherit; }
 .palco .region { transition: fill .08s; }
 .palco .region:hover { fill-opacity: .85; }
 .palco .contorno { pointer-events: none; stroke-width: 1.4; }
+
+/* ───── Zoom / tela cheia ───── */
+.zoom-ctrls { position: absolute; top: 12px; right: 12px; z-index: 6; display: flex; flex-direction: column; gap: 6px; }
+.zoom-ctrls button {
+  width: 42px; height: 42px; border-radius: 13px; border: 2px solid var(--line);
+  background: rgba(255, 255, 255, 0.94); cursor: pointer; font-size: 18px; font-weight: 800;
+  box-shadow: var(--shadow); transition: transform .08s;
+}
+.zoom-ctrls button:active { transform: scale(0.9); }
+.zoom-ctrls button.ativo { background: var(--brand); color: #fff; border-color: var(--brand); }
+.palco-wrap.cheia {
+  position: fixed; inset: 0; z-index: 90; max-width: none; margin: 0; border-radius: 0;
+}
+.palco-wrap.cheia .palco { min-height: 0; flex: 1; }
+.palco-wrap.cheia .palco svg { max-width: 96vw; max-height: calc(100vh - 220px); width: auto; }
+
+/* ───── Fix canvas do Estúdio ───── */
+#st-host { display: grid; place-items: center; width: 100%; }
 
 /* overlay de carregamento (geradores de campo são síncronos e lentos) */
 .carregando {
@@ -397,7 +415,7 @@ button { font-family: inherit; }
 .st-fonte .rotulo-mini { margin: 8px 0 2px; border-top: 1px dashed var(--line); padding-top: 8px; }
 .st-fonte .rotulo-mini:first-child { border-top: 0; }
 
-@media (max-width: 1100px) { .studio { grid-template-columns: 1fr; } .st-camadas, .st-programa { max-height: none; } }
+@media (max-width: 1100px) { .studio { grid-template-columns: 1fr; } .st-camadas, .st-programa { max-height: none; } .st-canvas-wrap { order: -1; } }
 
 /* ───── Topo fixo + abas roláveis ───── */
 .topo { position: sticky; top: 0; z-index: 40; }

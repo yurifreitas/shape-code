@@ -297,6 +297,63 @@ window.COLORING_DATASET = {
       }
     },
     {
+      "id": "lsystem",
+      "nome": "Planta Fractal (L-System)",
+      "icone": "🌿",
+      "descricao": "Plantas geradas por um sistema-L (Lindenmayer) — galhos e folhas fractais.",
+      "porque": "Sistemas-L mostram como uma regra simples, repetida, cria a complexidade das plantas. Liga recursão, padrões e natureza; ótimo para criatividade e percepção de auto-similaridade.",
+      "faixaEtaria": "6-15",
+      "areas": ["padroes", "criativa", "espacial", "motora", "atencao"],
+      "algoritmo": "Sistema-L (Lindenmayer) reescrito + tartaruga gráfica",
+      "params": {
+        "tipo": { "tipo": "select", "opcoes": ["samambaia", "arbusto", "erva"], "padrao": "samambaia", "rotulo": "Planta" },
+        "iteracoes": { "tipo": "range", "min": 2, "max": 6, "padrao": 4, "rotulo": "Crescimento" }
+      }
+    },
+    {
+      "id": "chladni",
+      "nome": "Cimática (Chladni)",
+      "icone": "🔊",
+      "descricao": "Padrões de uma placa vibrando — as linhas onde a areia se acumula.",
+      "porque": "Figuras de Chladni mostram o som virando forma (física + matemática). Colorir as zonas de vibração liga ondas, simetria e percepção de padrões.",
+      "faixaEtaria": "7-15",
+      "areas": ["visual", "padroes", "espacial", "atencao", "criativa"],
+      "algoritmo": "Modos de vibração cos(nπx)cos(mπy)−cos(mπx)cos(nπy) → marching squares",
+      "params": {
+        "n": { "tipo": "range", "min": 1, "max": 8, "padrao": 4, "rotulo": "Modo n" },
+        "m": { "tipo": "range", "min": 1, "max": 8, "padrao": 3, "rotulo": "Modo m" },
+        "linhas": { "tipo": "range", "min": 2, "max": 8, "padrao": 3, "rotulo": "Níveis de contorno" }
+      }
+    },
+    {
+      "id": "quasicristal",
+      "nome": "Quasicristal",
+      "icone": "❄",
+      "descricao": "Soma de ondas (padrão quasi-periódico) com simetria que nunca se repete.",
+      "porque": "Quasicristais têm simetria proibida aos cristais comuns (Nobel 2011). Somar ondas e ver o padrão emergir liga matemática, física e beleza — atenção e percepção de padrões finos.",
+      "faixaEtaria": "8-15",
+      "areas": ["visual", "padroes", "espacial", "atencao", "criativa"],
+      "algoritmo": "Soma de N ondas planas Σcos(k·(x·cosθ+y·sinθ)+φ) → marching squares",
+      "params": {
+        "simetria": { "tipo": "range", "min": 3, "max": 9, "padrao": 5, "rotulo": "Simetria (ondas)" },
+        "frequencia": { "tipo": "range", "min": 10, "max": 60, "padrao": 30, "rotulo": "Frequência" },
+        "linhas": { "tipo": "range", "min": 2, "max": 8, "padrao": 4, "rotulo": "Níveis de contorno" }
+      }
+    },
+    {
+      "id": "islamico",
+      "nome": "Padrão Islâmico",
+      "icone": "✴",
+      "descricao": "Malha de estrelas de 8 pontas e losangos — geometria sagrada islâmica.",
+      "porque": "A arte geométrica islâmica constrói padrões infinitos com régua e compasso a partir de estrelas. Estimula simetria, raciocínio espacial e ritmo visual.",
+      "faixaEtaria": "6-15",
+      "areas": ["espacial", "padroes", "visual", "atencao", "criativa"],
+      "algoritmo": "Ladrilhamento de estrelas de 8 pontas (octagrama) + losangos",
+      "params": {
+        "grade": { "tipo": "range", "min": 3, "max": 9, "padrao": 5, "rotulo": "Grade" }
+      }
+    },
+    {
       "id": "campovetorial",
       "nome": "Campo Acoplado",
       "icone": "🌊",

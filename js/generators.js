@@ -857,9 +857,72 @@
     return wrap(o);
   }
 
+  // ───────────────── PADRÃO ISLÂMICO (estrelas geométricas) ─────────────────
+  // Malha de estrelas de 8 pontas + losangos — geometria sagrada islâmica.
+  function islamico(opts) {
+    const g = +opts.grade || 5, pad = 28;
+    const cell = (W - 2 * pad) / g, parts = [];
+    const estrela = (cx, cy, R) => {
+      const pts = [];
+      for (let k = 0; k < 16; k++) { const a = (k * Math.PI) / 8 - Math.PI / 2; const rr = (k % 2) ? R * 0.42 : R; pts.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]); }
+      return pts;
+    };
+    for (let i = 0; i < g; i++) for (let j = 0; j < g; j++) {
+      const cx = pad + cell * (i + 0.5), cy = pad + cell * (j + 0.5), R = cell * 0.5;
+      parts.push(poly(estrela(cx, cy, R)));
+      parts.push(poly(estrela(cx, cy, R * 0.5))); // estrela interna
+      parts.push('<circle class="region" cx="' + n(cx) + '" cy="' + n(cy) + '" r="' + n(R * 0.16) + '"/>');
+    }
+    // losangos nas interseções da grade
+    for (let i = 1; i < g; i++) for (let j = 1; j < g; j++) {
+      const cx = pad + cell * i, cy = pad + cell * j, s = cell * 0.2;
+      parts.push(poly([[cx, cy - s], [cx + s, cy], [cx, cy + s], [cx - s, cy]]));
+    }
+    parts.push('<rect x="' + pad + '" y="' + pad + '" width="' + (cell * g) + '" height="' + (cell * g) + '" fill="none"/>');
+    return wrap(parts.join(""));
+  }
+
+  // ───────────────── SISTEMA-L (Lindenmayer) — plantas fractais ─────────────────
+  function lsystem(opts) {
+    const sistemas = {
+      samambaia: { axiom: "X", regras: { X: "F-[[X]+X]+F[+FX]-X", F: "FF" }, ang: 22 },
+      arbusto: { axiom: "F", regras: { F: "FF+[+F-F-F]-[-F+F+F]" }, ang: 23 },
+      erva: { axiom: "F", regras: { F: "F[+F]F[-F][F]" }, ang: 25 },
+    };
+    const s = sistemas[opts.tipo] || sistemas.samambaia;
+    const it = Math.max(1, +opts.iteracoes || 4);
+    let str = s.axiom;
+    for (let i = 0; i < it; i++) { let nx = ""; for (let c = 0; c < str.length; c++) nx += s.regras[str[c]] || str[c]; str = nx; if (str.length > 120000) break; }
+    const segs = [], folhas = [], st = [];
+    let x = 0, y = 0, ang = -90; const step = 8, rad = (d) => (d * Math.PI) / 180;
+    for (let c = 0; c < str.length; c++) {
+      const ch = str[c];
+      if (ch === "F") { const x2 = x + Math.cos(rad(ang)) * step, y2 = y + Math.sin(rad(ang)) * step; segs.push([x, y, x2, y2, Math.max(1.5, 8 - st.length)]); x = x2; y = y2; if (segs.length > 4000) break; }
+      else if (ch === "+") ang += s.ang;
+      else if (ch === "-") ang -= s.ang;
+      else if (ch === "[") st.push([x, y, ang]);
+      else if (ch === "]") { folhas.push([x, y]); const p = st.pop(); if (p) { x = p[0]; y = p[1]; ang = p[2]; } }
+    }
+    let mnx = 1e9, mny = 1e9, mxx = -1e9, mxy = -1e9;
+    const upd = (px, py) => { if (px < mnx) mnx = px; if (px > mxx) mxx = px; if (py < mny) mny = py; if (py > mxy) mxy = py; };
+    segs.forEach((g) => { upd(g[0], g[1]); upd(g[2], g[3]); }); folhas.forEach((p) => upd(p[0], p[1]));
+    const bw = mxx - mnx || 1, bh = mxy - mny || 1, pad = 44, sc = Math.min((W - 2 * pad) / bw, (H - 2 * pad) / bh);
+    const tx = (px) => pad + (px - mnx) * sc, ty = (py) => pad + (py - mny) * sc;
+    const parts = [];
+    segs.forEach((g) => {
+      const x1 = tx(g[0]), y1 = ty(g[1]), x2 = tx(g[2]), y2 = ty(g[3]), w = g[4] * 0.5;
+      const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy) || 1, px = (-dy / len) * w, py = (dx / len) * w;
+      parts.push(poly([[x1 + px, y1 + py], [x1 - px, y1 - py], [x2 - px * 0.7, y2 - py * 0.7], [x2 + px * 0.7, y2 + py * 0.7]]));
+    });
+    folhas.forEach((p) => parts.push('<ellipse class="region" cx="' + n(tx(p[0])) + '" cy="' + n(ty(p[1])) + '" rx="5.5" ry="9"/>'));
+    return wrap(parts.join(""));
+  }
+
   // Registro público
   window.GENERATORS = {
     forma: forma,
+    islamico: islamico,
+    lsystem: lsystem,
     superformula: superformula,
     espirografo: espirografo,
     vitral: vitral,

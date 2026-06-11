@@ -13,19 +13,19 @@ infantis. Cada tipo de desenho é catalogado em um **dataset JSON** com as
 ## ✨ As 4 telas
 
 ### 🎨 Criar
-Escolha um dos **19 geradores**, ajuste os parâmetros e **clique em "↻ Gerar
+Escolha um dos **23 geradores**, ajuste os parâmetros e **clique em "↻ Gerar
 nova variação"** para um desenho único. Depois:
 
-- **Pinte** clicando nas regiões.
-- **🎨 Estúdio de Cores** (botão flutuante): paletas grandes (Vibrantes, Pastéis,
+- **Pinte** clicando nas regiões. Com **zoom/pan e tela cheia** (⛶) para detalhes.
+- **🎨 Estúdio de Cores** (botão 🎨 no fim da paleta): paletas grandes (Vibrantes, Pastéis,
   Terra), **arco‑íris** (matiz + brilho), **misturar 2 cores**, **pintura em
   degradê (A→B)**, **conta‑gotas** e **texturas** (listrado, bolinhas, xadrez).
 - **✨ Efeitos manipuláveis** (ao vivo, sem regenerar): escala, rotação,
   inclinação, espessura, traço irregular, ondular, **simetria/caleidoscópio**
   (espelho/radial), cor do traço e **fundo branco ou transparente**.
-- **⚃ Gerar lote** misto: "5× de um, 3× de outro…" e exportar tudo em **PDF** ou
-  separado (PNG/SVG).
-- Salvar na coleção · Compartilhar · Copiar · Imprimir · PNG · SVG.
+- **💾 Salvar & Exportar** (1 botão → menu): salvar na coleção, compartilhar,
+  copiar, PNG, SVG, imprimir e **gerar lote** misto ("5× de um, 3× de outro…",
+  exporta em PDF ou separado).
 
 ### ✏️ Desenhar
 Desenhador vetorial **à mão livre** (funciona com o dedo/caneta no celular):
@@ -62,14 +62,14 @@ Você pode **selecionar** itens e:
 
 ---
 
-## 🧠 Os 19 geradores
+## 🧠 Os 23 geradores
 
 | Grupo | Geradores |
 |---|---|
 | **Formas & simetria** | Forma simples · Mandala · Caleidoscópio · Roseta · Borboleta simétrica · Tesselação |
-| **Matemática** | Superfórmula (Gielis) · Espirógrafo (hipotrocoide) · **Hiperespaço 4D** (tesseract, 5/16/24‑célula, toro de Clifford, fibração de Hopf) · **Penrose** (ladrilhamento aperiódico) |
+| **Matemática** | Superfórmula (Gielis) · Espirógrafo · **Hiperespaço 4D** (tesseract, 5/16/24‑célula, Clifford, Hopf) · **Penrose** · **Quasicristal** · **Padrão Islâmico** · **Planta Fractal (L‑System)** |
 | **Estado da arte** | **Vitral** (Voronoi + Lloyd) · **Low‑Poly** (Delaunay) · **Truchet** · **Círculos** (packing Apollonian) |
-| **Campos / reação‑difusão** | **Reação‑Difusão** (Gray‑Scott) · **Geometria Sagrada** (filotaxia/Fibonacci) · **Campo Acoplado** (PDEs ρ–Φ–v) · Árvore Fractal |
+| **Campos / física** | **Reação‑Difusão** (Gray‑Scott) · **Geometria Sagrada** (filotaxia) · **Campo Acoplado** (PDEs ρ–Φ–v) · **Cimática (Chladni)** · Árvore Fractal |
 | **Montar** | **Montar Cena (∞)**: 60+ elementos paramétricos, 9 temas, arranjos (cena, espiral áurea, grade, anel) — sem sobreposição |
 
 Três geradores de campo são portados de algoritmos próprios (Gray‑Scott,
@@ -124,7 +124,7 @@ espacial?"* ou montar trilhas por idade/função cognitiva.
 ## 📱 Mobile
 
 - Abas com ícone + **barra de navegação inferior** (toque no polegar).
-- **Botão flutuante 🎨** abre o estúdio de cores.
+- **Botão 🎨** (no fim da paleta) e o item **Cores** da barra abrem o estúdio de cores.
 - Canvas grande, toque para pintar/desenhar, alvos de toque ampliados, modais em
   tela cheia, **modo Foco ⛶** (esconde os painéis).
 
