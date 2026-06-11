@@ -262,6 +262,12 @@ window.Studio = (function () {
     // nome
     const nomeIn = ctrlTexto("Nome", l.nome, (v) => { l.nome = v; renderCamadas(); });
     fonteBox.appendChild(nomeIn);
+    const mini = (txt) => { const p = document.createElement("p"); p.className = "rotulo-mini"; p.textContent = txt; return p; };
+    // 🎨 COR DA CAMADA — no topo (fica fácil de achar; sobrevive às edições)
+    fonteBox.appendChild(mini("🎨 Cor da camada"));
+    fonteBox.appendChild(rotulado("Preenchimento", ctrlPaleta(l.corPreench, (c) => { l.corPreench = c; renderPrograma(); recompositar(); })));
+    fonteBox.appendChild(rotulado("Traço", ctrlCor(l.corTraco, (v) => { l.corTraco = v; recompositar(); })));
+    fonteBox.appendChild(ctrlRange("Espessura do traço", 0, 300, l.espessura, (v) => { l.espessura = v; recompositar(); }));
     // fonte (gerador)
     const selFonte = document.createElement("select"); selFonte.className = "st-sel";
     gensDisponiveis().forEach((id) => { const o = document.createElement("option"); o.value = id; o.textContent = (dadosGerador(id).icone || "") + " " + dadosGerador(id).nome; if (id === l.fonte) o.selected = true; selFonte.appendChild(o); });
@@ -278,12 +284,6 @@ window.Studio = (function () {
       if (p.tipo === "select") fonteBox.appendChild(rotulado(p.rotulo, ctrlSelect(p.opcoes, l.params[k], (v) => { l.params[k] = v; recomputeBase(l); recompositar(); })));
       else fonteBox.appendChild(ctrlRange(p.rotulo, p.min, p.max, l.params[k], (v) => { l.params[k] = v; recomputeBase(l); recompositar(); }));
     });
-    const mini = (txt) => { const p = document.createElement("p"); p.className = "rotulo-mini"; p.textContent = txt; return p; };
-    // cor da camada (sobrevive às edições de blocos)
-    fonteBox.appendChild(mini("🎨 Cor da camada"));
-    fonteBox.appendChild(rotulado("Preenchimento", ctrlPaleta(l.corPreench, (c) => { l.corPreench = c; renderPrograma(); recompositar(); })));
-    fonteBox.appendChild(rotulado("Traço", ctrlCor(l.corTraco, (v) => { l.corTraco = v; recompositar(); })));
-    fonteBox.appendChild(ctrlRange("Espessura do traço", 0, 300, l.espessura, (v) => { l.espessura = v; recompositar(); }));
     // transformar a camada inteira
     fonteBox.appendChild(mini("⤢ Transformar camada"));
     fonteBox.appendChild(ctrlRange("Escala (%)", 20, 300, l.lEscala, (v) => { l.lEscala = v; recompositar(); }));

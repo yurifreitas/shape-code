@@ -13,7 +13,7 @@ infantis. Cada tipo de desenho é catalogado em um **dataset JSON** com as
 ## ✨ As 4 telas
 
 ### 🎨 Criar
-Escolha um dos **23 geradores**, ajuste os parâmetros e **clique em "↻ Gerar
+Escolha um dos **26 geradores**, ajuste os parâmetros e **clique em "↻ Gerar
 nova variação"** para um desenho único. Depois:
 
 - **Pinte** clicando nas regiões. Com **zoom/pan e tela cheia** (⛶) para detalhes.
@@ -62,13 +62,13 @@ Você pode **selecionar** itens e:
 
 ---
 
-## 🧠 Os 23 geradores
+## 🧠 Os 26 geradores
 
 | Grupo | Geradores |
 |---|---|
 | **Formas & simetria** | Forma simples · Mandala · Caleidoscópio · Roseta · Borboleta simétrica · Tesselação |
-| **Matemática** | Superfórmula (Gielis) · Espirógrafo · **Hiperespaço 4D** (tesseract, 5/16/24‑célula, Clifford, Hopf) · **Penrose** · **Quasicristal** · **Padrão Islâmico** · **Planta Fractal (L‑System)** |
-| **Estado da arte** | **Vitral** (Voronoi + Lloyd) · **Low‑Poly** (Delaunay) · **Truchet** · **Círculos** (packing Apollonian) |
+| **Matemática** | Superfórmula (Gielis) · Espirógrafo · **Hiperespaço 4D** (tesseract, 5/16/24‑célula, Clifford, Hopf) · **Penrose** · **Quasicristal** · **Padrão Islâmico** · **Planta Fractal (L‑System)** · **Gasket de Apollonius** (Descartes) · **Fractal de Julia** |
+| **Estado da arte** | **Vitral** (Voronoi + Lloyd) · **Low‑Poly** (Delaunay) · **Truchet** · **Círculos** (packing) · **Labirinto** (backtracker) |
 | **Campos / física** | **Reação‑Difusão** (Gray‑Scott) · **Geometria Sagrada** (filotaxia) · **Campo Acoplado** (PDEs ρ–Φ–v) · **Cimática (Chladni)** · Árvore Fractal |
 | **Montar** | **Montar Cena (∞)**: 60+ elementos paramétricos, 9 temas, arranjos (cena, espiral áurea, grade, anel) — sem sobreposição |
 

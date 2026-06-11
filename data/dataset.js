@@ -297,6 +297,46 @@ window.COLORING_DATASET = {
       }
     },
     {
+      "id": "gasket",
+      "nome": "Gasket de Apollonius",
+      "icone": "⊚",
+      "descricao": "Círculos que se tangenciam infinitamente — o teorema dos círculos de Descartes.",
+      "porque": "Cada lacuna é preenchida por um círculo tangente exato, gerando um fractal milenar. Liga geometria, frações e auto-similaridade; ótimo para percepção de tamanho e aninhamento.",
+      "faixaEtaria": "8-15",
+      "areas": ["espacial", "padroes", "visual", "atencao", "criativa"],
+      "algoritmo": "Empacotamento Apollonian via teorema dos círculos de Descartes (curvaturas complexas)",
+      "params": {
+        "profundidade": { "tipo": "range", "min": 2, "max": 5, "padrao": 3, "rotulo": "Profundidade" }
+      }
+    },
+    {
+      "id": "labirinto",
+      "nome": "Labirinto",
+      "icone": "🧭",
+      "descricao": "Um labirinto perfeito gerado por busca em profundidade — entre em cima, saia embaixo.",
+      "porque": "Resolver labirintos treina planejamento, memória de trabalho e raciocínio espacial; o algoritmo mostra como regras simples criam caminhos únicos.",
+      "faixaEtaria": "4-12",
+      "areas": ["espacial", "atencao", "motora", "padroes", "visual"],
+      "algoritmo": "Labirinto perfeito por backtracker recursivo (busca em profundidade)",
+      "params": {
+        "tamanho": { "tipo": "range", "min": 6, "max": 24, "padrao": 12, "rotulo": "Tamanho" }
+      }
+    },
+    {
+      "id": "julia",
+      "nome": "Fractal de Julia",
+      "icone": "🐉",
+      "descricao": "Conjuntos de Julia — fractais clássicos com formas de coelho, dendrito, espiral...",
+      "porque": "Fractais mostram complexidade infinita a partir de uma fórmula simples (z²+c). Liga números complexos, iteração e beleza — atenção e percepção de auto-similaridade.",
+      "faixaEtaria": "9-15",
+      "areas": ["visual", "padroes", "espacial", "atencao", "criativa"],
+      "algoritmo": "Conjunto de Julia z→z²+c (tempo de escape suavizado) → marching squares",
+      "params": {
+        "tipo": { "tipo": "select", "opcoes": ["coelho", "dendrito", "espiral", "galho", "relampago"], "padrao": "coelho", "rotulo": "Forma" },
+        "linhas": { "tipo": "range", "min": 3, "max": 9, "padrao": 5, "rotulo": "Níveis de contorno" }
+      }
+    },
+    {
       "id": "lsystem",
       "nome": "Planta Fractal (L-System)",
       "icone": "🌿",

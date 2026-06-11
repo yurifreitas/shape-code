@@ -396,11 +396,34 @@
     return fieldToSVG(chladniField(opts), { niveis: 3 + (+opts.linhas || 3) });
   }
 
+  // ───────────────── CONJUNTO DE JULIA (fractal) ─────────────────
+  function juliaField(opts) {
+    const grid = 168, maxIter = 64;
+    const presets = { coelho: [-0.123, 0.745], dendrito: [-0.4, 0.6], espiral: [-0.8, 0.156], galho: [0.285, 0.01], relampago: [-0.70176, -0.3842] };
+    const c = presets[opts.tipo] || presets.coelho;
+    const field = new Float32Array(grid * grid);
+    for (let y = 0; y < grid; y++) {
+      for (let x = 0; x < grid; x++) {
+        let zr = (x / (grid - 1)) * 3.2 - 1.6, zi = (y / (grid - 1)) * 3.2 - 1.6;
+        let it = 0;
+        for (; it < maxIter; it++) { const zr2 = zr * zr - zi * zi + c[0]; zi = 2 * zr * zi + c[1]; zr = zr2; if (zr * zr + zi * zi > 16) break; }
+        let v = it;
+        if (it < maxIter) { const mag = Math.sqrt(zr * zr + zi * zi); v = it + 1 - Math.log(Math.log(mag)) / Math.log(2); }
+        field[y * grid + x] = v;
+      }
+    }
+    return { field: field, N: grid };
+  }
+  function julia(opts) {
+    return fieldToSVG(juliaField(opts), { niveis: 4 + (+opts.linhas || 5) });
+  }
+
   window.FIELD_GENERATORS = {
     reacaodifusao: reacaodifusao,
     geometriasagrada: geometriasagrada,
     campovetorial: campovetorial,
     quasicristal: quasicristal,
     chladni: chladni,
+    julia: julia,
   };
 })();

@@ -918,11 +918,79 @@
     return wrap(parts.join(""));
   }
 
+  // ─────────────── GASKET DE APOLLONIUS (teorema de Descartes) ───────────────
+  function gasket(opts) {
+    const prof = +opts.profundidade || 3;
+    const minRad = [0.07, 0.045, 0.028, 0.017, 0.011][Math.min(4, prof - 1)] || 0.03;
+    const C = {
+      add: (a, b) => [a[0] + b[0], a[1] + b[1]], sub: (a, b) => [a[0] - b[0], a[1] - b[1]],
+      mul: (a, b) => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]], scale: (a, s) => [a[0] * s, a[1] * s],
+      abs: (a) => Math.hypot(a[0], a[1]),
+      sqrt: (a) => { const m = Math.hypot(a[0], a[1]); const re = Math.sqrt(Math.max(0, (m + a[0]) / 2)); let im = Math.sqrt(Math.max(0, (m - a[0]) / 2)); if (a[1] < 0) im = -im; return [re, im]; },
+    };
+    const all = [{ k: -1, c: [0, 0] }, { k: 2, c: [-0.5, 0] }, { k: 2, c: [0.5, 0] }];
+    const fila = [[all[0], all[1], all[2]]];
+    const tang = (a, b) => { const d = C.abs(C.sub(a.c, b.c)), ra = 1 / Math.abs(a.k), rb = 1 / Math.abs(b.k), tol = 0.02 * Math.min(ra, rb) + 1e-4; return Math.abs(d - Math.abs(ra - rb)) < tol || Math.abs(d - (ra + rb)) < tol; };
+    let guard = 0;
+    while (fila.length && all.length < 600 && guard++ < 6000) {
+      const t = fila.shift(), a = t[0], b = t[1], cc = t[2];
+      const s = a.k + b.k + cc.k, root = 2 * Math.sqrt(Math.abs(a.k * b.k + b.k * cc.k + cc.k * a.k));
+      [s + root, s - root].forEach((k4) => {
+        if (!isFinite(k4) || k4 === 0) return;
+        if (1 / Math.abs(k4) < minRad) return;
+        const bz1 = C.scale(a.c, a.k), bz2 = C.scale(b.c, b.k), bz3 = C.scale(cc.c, cc.k);
+        const inner = C.add(C.add(C.mul(bz1, bz2), C.mul(bz2, bz3)), C.mul(bz3, bz1));
+        const rt = C.scale(C.sqrt(inner), 2), sum = C.add(C.add(bz1, bz2), bz3);
+        [C.scale(C.add(sum, rt), 1 / k4), C.scale(C.sub(sum, rt), 1 / k4)].forEach((ctr) => {
+          const nc = { k: k4, c: ctr };
+          if (!(tang(nc, a) && tang(nc, b) && tang(nc, cc))) return;
+          if (all.some((o) => Math.abs(o.k - k4) < 1e-3 && C.abs(C.sub(o.c, ctr)) < 1e-3)) return;
+          all.push(nc); fila.push([a, b, nc], [a, cc, nc], [b, cc, nc]);
+        });
+      });
+    }
+    const cx = W / 2, cy = H / 2, scale = 320, parts = [];
+    all.forEach((o) => { const R = (1 / Math.abs(o.k)) * scale; if (R < 1.5) return; parts.push('<circle class="region" cx="' + n(cx + o.c[0] * scale) + '" cy="' + n(cy + o.c[1] * scale) + '" r="' + n(R) + '"/>'); });
+    return wrap(parts.join(""));
+  }
+
+  // ─────────────────── LABIRINTO (backtracker recursivo) ───────────────────
+  function labirinto(opts) {
+    const r = rng((opts.seed | 0) || 1), N = +opts.tamanho || 12, pad = 24, cell = (W - 2 * pad) / N;
+    const idx = (i, j) => j * N + i;
+    const cells = []; for (let k = 0; k < N * N; k++) cells.push({ w: [1, 1, 1, 1], v: false });
+    const dirs = [[0, -1, 0, 2], [1, 0, 1, 3], [0, 1, 2, 0], [-1, 0, 3, 1]];
+    const stack = [[0, 0]]; cells[0].v = true;
+    while (stack.length) {
+      const cur = stack[stack.length - 1], ci = cur[0], cj = cur[1];
+      const ok = dirs.filter((d) => { const ni = ci + d[0], nj = cj + d[1]; return ni >= 0 && ni < N && nj >= 0 && nj < N && !cells[idx(ni, nj)].v; });
+      if (!ok.length) { stack.pop(); continue; }
+      const d = ok[Math.floor(r() * ok.length)], ni = ci + d[0], nj = cj + d[1];
+      cells[idx(ci, cj)].w[d[2]] = 0; cells[idx(ni, nj)].w[d[3]] = 0; cells[idx(ni, nj)].v = true; stack.push([ni, nj]);
+    }
+    // entrada e saída
+    cells[idx(0, 0)].w[0] = 0; cells[idx(N - 1, N - 1)].w[2] = 0;
+    const parts = [];
+    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) parts.push('<rect class="region" x="' + n(pad + i * cell) + '" y="' + n(pad + j * cell) + '" width="' + n(cell) + '" height="' + n(cell) + '" stroke="none"/>');
+    const linhas = [];
+    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+      const c = cells[idx(i, j)], x = pad + i * cell, y = pad + j * cell;
+      if (c.w[0]) linhas.push(ln(x, y, x + cell, y));
+      if (c.w[3]) linhas.push(ln(x, y, x, y + cell));
+      if (i === N - 1 && c.w[1]) linhas.push(ln(x + cell, y, x + cell, y + cell));
+      if (j === N - 1 && c.w[2]) linhas.push(ln(x, y + cell, x + cell, y + cell));
+    }
+    parts.push('<g stroke-width="' + n(Math.max(2.5, cell * 0.16)) + '" stroke-linecap="square">' + linhas.join("") + "</g>");
+    return wrap(parts.join(""));
+  }
+
   // Registro público
   window.GENERATORS = {
     forma: forma,
     islamico: islamico,
     lsystem: lsystem,
+    gasket: gasket,
+    labirinto: labirinto,
     superformula: superformula,
     espirografo: espirografo,
     vitral: vitral,

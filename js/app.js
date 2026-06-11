@@ -381,11 +381,11 @@
       b.title = c;
       if (c === "#ffffff") b.style.border = "2px solid #ccc";
       b.onclick = () => {
-        estado.cor = c;
-        estado.modo = "pintar";
-        document.querySelectorAll(".swatch").forEach((s) => s.classList.remove("sel"));
+        estado.cor = c; estado.modo = "pintar"; estado.degrade = false; estado.textura = "solido";
+        document.querySelectorAll("#paleta .swatch").forEach((s) => s.classList.remove("sel"));
         b.classList.add("sel");
         $("btn-borracha").classList.remove("ativo");
+        atualizarCorAtual();
       };
       box.appendChild(b);
     });
@@ -394,15 +394,17 @@
     mais.className = "swatch swatch-mais"; mais.textContent = "🎨"; mais.title = "Mais cores e misturar";
     mais.onclick = () => abrirSheet();
     box.appendChild(mais);
-    // seletor de cor personalizada
-    const custom = $("cor-custom");
-    custom.value = "#e63946";
-    custom.oninput = () => {
-      estado.cor = custom.value;
-      estado.modo = "pintar";
-      document.querySelectorAll(".swatch").forEach((s) => s.classList.remove("sel"));
-      $("btn-borracha").classList.remove("ativo");
-    };
+    atualizarCorAtual();
+  }
+
+  // Indicador grande da cor ativa (sempre visível) — mostra cor / degradê / borracha.
+  function atualizarCorAtual() {
+    const el = $("cor-atual");
+    if (!el) return;
+    if (estado.modo === "borracha") { el.style.background = "repeating-conic-gradient(#e7e9f2 0% 25%, #fff 0% 50%) 50% / 12px 12px"; el.textContent = "⌫"; }
+    else if (estado.degrade) { el.style.background = "linear-gradient(135deg," + estado.corA + "," + estado.corB + ")"; el.textContent = ""; }
+    else if (estado.textura && estado.textura !== "solido") { el.style.background = estado.cor; el.textContent = "▦"; }
+    else { el.style.background = estado.cor; el.textContent = ""; }
   }
 
   // ───────────────────────────── COLEÇÃO ───────────────────────────────
@@ -569,6 +571,7 @@
     else estado.cor = c;
     document.querySelectorAll("#paleta .swatch").forEach((s) => s.classList.remove("sel"));
     renderColorStudio();
+    atualizarCorAtual();
   }
 
   function renderColorStudio() {
@@ -637,6 +640,7 @@
     const ok = document.createElement("button"); ok.className = "sheet-acao primario"; ok.textContent = "Pronto ✓"; ok.onclick = fecharSheet;
     acoes.appendChild(cg); acoes.appendChild(er); acoes.appendChild(lp); acoes.appendChild(ok);
     box.appendChild(acoes);
+    atualizarCorAtual();
   }
   const renderSheetPaleta = renderColorStudio;
   function abrirSheet() { renderColorStudio(); $("sheet-paleta").classList.add("aberto"); }
@@ -760,7 +764,9 @@
     $("btn-borracha").onclick = function () {
       estado.modo = estado.modo === "borracha" ? "pintar" : "borracha";
       this.classList.toggle("ativo", estado.modo === "borracha");
+      atualizarCorAtual();
     };
+    $("cor-atual").onclick = () => abrirSheet();
     $("btn-foco").onclick = () => { document.body.classList.toggle("foco"); };
     // menu único: Salvar & Exportar
     $("btn-export").onclick = () => { $("menu-export").style.display = "flex"; };
